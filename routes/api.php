@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
         });
 
+    });
+
+    Route::prefix('profile')->group(function () {
+        // 🔐 Protected routes (Sanctum)
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::patch('/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+            Route::put('/changePassword', [ProfileController::class, 'changePassword'])->name('profile.changePassword');
+        });
     });
 
     // ❤️ Health check

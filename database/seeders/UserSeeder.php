@@ -17,20 +17,12 @@ class UserSeeder extends Seeder
          DB::table('users')->insert([
             [
                 'id' => 1,
-                'nama' => 'Admin Logbook',
-                'email' => 'admin@logbook.test',
-                'password' => Hash::make('password'),
+                'nama' => 'Abyan Setya',
+                'email' => 'abyan@example.com',
+                'password' => Hash::make('password123'),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'id' => 2,
-                'nama' => 'Mahasiswa Demo',
-                'email' => 'mahasiswa@logbook.test',
-                'password' => Hash::make('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            ],           
         ]);
     }
 }

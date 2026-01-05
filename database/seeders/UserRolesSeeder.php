@@ -16,12 +16,6 @@ class UserRolesSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            [
-                'user_id' => 2,
-                'role_id' => 2, // mahasiswa
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
         ]);
     }
 }

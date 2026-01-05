@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('jenis_dokumen', function (Blueprint $table) {
             $table->id();
+            $table->string('nama');
             $table->timestamps();
         });
+
     }
 
     /**

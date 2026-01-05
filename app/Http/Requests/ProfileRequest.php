@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class ProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,19 +21,14 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = $this->user()->id;
         return [
             'nama' => 'required|string|max:255',
-            'nim_nip' => ['required', 'string', 'max:50', 'unique:users,nim_nip'],
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'password_confirmation' => 'required|string|min:8',
-        ];
+            'nim_nip' => 'nullable|string|max:50|unique:users,nim_nip,' . $userId,
+            'email' => "required|email|unique:users,email,{$userId}",
+        ];  
     }
 
-    /**
-     * (Opsional tapi direkomendasikan)
-     * Custom pesan error (lebih enak dibaca frontend)
-     */
     public function messages(): array
     {
         return [
@@ -41,10 +36,8 @@ class RegisterRequest extends FormRequest
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
             'email.unique' => 'Email sudah terdaftar',
-            'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak sama',
-            'nim_nip.required' => 'NIM / NIP wajib diisi',
             'nim_nip.unique' => 'NIM / NIP sudah terdaftar',
         ];
     }

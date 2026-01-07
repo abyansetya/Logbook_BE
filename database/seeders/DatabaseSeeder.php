@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Mitra;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,7 +22,11 @@ class DatabaseSeeder extends Seeder
             // UserSeeder::class,
             // UserRolesSeeder::class,
             // JenisDokumenSeeder::class,
-            KlasifikasiMitraSeeder::class,
+            // KlasifikasiMitraSeeder::class,
+            // MitraSeeder::class,
+            // StatusSeeder::class,
+            // DokumenSeeder::class,
+            LogSeeder::class,
         ]);
     }
 }

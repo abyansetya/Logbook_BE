@@ -15,7 +15,6 @@ class KlasifikasiMitraSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        DB::table('klasifikasi_mitra')->truncate();
 
         
         DB::table('klasifikasi_mitra')->insert([

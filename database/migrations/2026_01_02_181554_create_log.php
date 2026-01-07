@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('dokumen_id');
             $table->text('keterangan')->nullable();
             $table->string('contact_person')->nullable();
+            $table->date('tanggal_log');
             $table->timestamps();
 
             $table->foreign('user_id')

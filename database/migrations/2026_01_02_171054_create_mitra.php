@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('mitra', function (Blueprint $table) {
             $table->id();
+            $table->string('nama');
+            $table->unsignedBigInteger('klasifikasi_mitra_id');
+            $table->text('alamat')->nullable();
+            $table->string('contact_person')->nullable();
+            $table->string('logo_mitra')->nullable();
             $table->timestamps();
+
+            $table->foreign('klasifikasi_mitra_id')
+                ->references('id')->on('klasifikasi_mitra')
+                ->onDelete('restrict');
         });
     }
 

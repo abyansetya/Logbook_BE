@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,11 @@ Route::prefix('v1')->group(function () {
             Route::patch('/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
             Route::put('/changePassword', [ProfileController::class, 'changePassword'])->name('profile.changePassword');
         });
+    });
+
+    Route::prefix('logbook')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
+        Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
     });
 
     // ❤️ Health check

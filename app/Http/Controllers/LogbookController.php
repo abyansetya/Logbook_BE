@@ -169,4 +169,23 @@ class LogbookController extends Controller
             ], 500);
         }
     }
+
+    // hapus dokumen by id
+    public function deleteDokumen($id): JsonResponse
+    {
+        try {
+            $dokumen = Dokumen::findOrFail($id);
+            $dokumen->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumen berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus dokumen'
+            ], 500);
+        }
+    }
 };

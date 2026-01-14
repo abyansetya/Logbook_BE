@@ -5,6 +5,7 @@ use App\Http\Controllers\HelperController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,13 +42,21 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [DashboardController::class, 'getDashboardStats'])->name('dashboard.index');
+    });
+
     Route::prefix('logbook')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
         Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
         Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
         Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
+        Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
     });
+
+    // Pindahkan ke luar grup untuk testing
+    //Route::delete('/logbook/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
 
     Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
         Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');

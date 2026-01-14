@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HelperController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ProfileController;
@@ -44,6 +45,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
         Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
         Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
+        Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
+        Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
+    });
+
+    Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
+        Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');
     });
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {

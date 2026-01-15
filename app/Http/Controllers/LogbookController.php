@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\addDokumenRequest;
+use App\Http\Requests\addLogRequest;
 use App\Http\Resources\DokumenResource;
 use App\Http\Resources\MitraResource;
 use App\Models\Dokumen;
+use App\Models\Log;
 use App\Models\Mitra;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -93,6 +96,42 @@ class LogbookController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan dokumen',
+                // Gunakan $e->getMessage() hanya di mode dev untuk keamanan
+                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+            ], 500);
+        }
+    }
+
+    public function addLog(addLogRequest $request):JsonResponse
+    {
+        DB::beginTransaction();
+        try{
+            $validated = $request->validated();
+
+            $log= Log::create([
+                'user_id' => $validated['user_id'],
+                'mitra_id' => $validated['mitra_id'],
+                'dokumen_id' => $validated['dokumen_id'],
+                'keterangan' => $validated['keterangan'],
+                'contact_person' => $validated['contact_person'],
+                'tanggal_log' => $validated['tanggal_log']
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data retrieved Successfully',
+                'data' => $log
+            ], 201);
+
+        } catch(\Exception $e)
+        {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan Log',
                 // Gunakan $e->getMessage() hanya di mode dev untuk keamanan
                 'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);

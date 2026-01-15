@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
         Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
         Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
+        Route::post('/add-log', [LogbookController::class, 'addLog']);
     });
 
     // Pindahkan ke luar grup untuk testing

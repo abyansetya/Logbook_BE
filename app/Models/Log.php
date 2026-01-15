@@ -17,6 +17,7 @@ class Log extends Model
         'dokumen_id',
         'keterangan',
         'contact_person',
+        'tanggal_log'
     ];
 
     public function user()

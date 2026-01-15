@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\addDokumenRequest;
 use App\Http\Requests\addLogRequest;
+use App\Http\Requests\updateLogRequest;
 use App\Http\Resources\DokumenResource;
 use App\Http\Resources\MitraResource;
 use App\Models\Dokumen;
@@ -13,6 +14,7 @@ use App\Models\Mitra;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -43,9 +45,12 @@ class LogbookController extends Controller
     public function showByDokumen($id): JsonResponse
     {
         try {
-            // Ambil dokumen spesifik beserta log aktivitasnya
             $dokumen = Dokumen::with([
-                'logs.user', // Untuk menampilkan "Admin Undip"
+                // Menambahkan fungsi penutup untuk mengurutkan log
+                'logs' => function ($query) {
+                    $query->orderBy('tanggal_log', 'asc'); // 'desc' untuk terbaru di atas
+                },
+                'logs.user', 
                 'jenisDokumen',
                 'status'
             ])->findOrFail($id);
@@ -138,6 +143,7 @@ class LogbookController extends Controller
         }
     }
 
+
     public function searchDokumen(Request $request): JsonResponse
     {
         try {
@@ -167,6 +173,42 @@ class LogbookController extends Controller
             ], 500);
         }
     }
+
+    public function updateLog(updateLogRequest $request, $id): JsonResponse
+    {
+        // 1. Mulai Transaksi agar data konsisten (semua berhasil atau semua gagal)
+        DB::beginTransaction();
+
+        try {
+            // 2. Pastikan pencarian berdasarkan ID ini terindeks (Primary Key)
+            $log = Log::findOrFail($id);
+
+            // 3. Update data berdasarkan request yang sudah divalidasi
+            $log->update([
+                'keterangan'  => $request->keterangan,
+                'tanggal_log' => $request->tanggal_log ?? now(),
+                'user_id'     => Auth::id() // Menggunakan helper id() yang benar
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Log aktivitas berhasil diperbarui',
+                'data'    => $log
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Jika ada error, batalkan semua perubahan data
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal memperbarui log: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function updateDokumen(addDokumenRequest $request, $id): JsonResponse
     {

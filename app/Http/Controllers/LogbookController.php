@@ -187,7 +187,8 @@ class LogbookController extends Controller
             $log->update([
                 'keterangan'  => $request->keterangan,
                 'tanggal_log' => $request->tanggal_log ?? now(),
-                'user_id'     => Auth::id() // Menggunakan helper id() yang benar
+                'user_id'     => Auth::id(), // Menggunakan helper id() yang benar
+                'updated_at'     => now('Asia/Jakarta'),
             ]);
 
             DB::commit();
@@ -205,6 +206,25 @@ class LogbookController extends Controller
             return response()->json([
                 'success' => false, 
                 'message' => 'Gagal memperbarui log: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteLog($id): JsonResponse
+    {
+        try{
+            $log = Log::findOrFail($id);
+            $log->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Log berhasil dihapus'
+            ], 200);
+        }catch(\Exception $e)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Log'
             ], 500);
         }
     }

@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
         Route::post('/add-log', [LogbookController::class, 'addLog']);
         Route::put('/edit-log/{id}', [LogbookController::class, 'updateLog']);
+        Route::delete('/delete-log/{id}', [LogbookController::class, 'deleteLog']);
     });
 
     // Pindahkan ke luar grup untuk testing

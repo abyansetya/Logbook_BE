@@ -42,6 +42,13 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    Route::prefix('users')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+        Route::put('/{id}/role', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update-role');
+        Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/search', [\App\Http\Controllers\UserController::class, 'searchUser'])->name('users.search');
+    });
+
     Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [DashboardController::class, 'getDashboardStats'])->name('dashboard.index');
     });
@@ -66,6 +73,10 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [MitraController::class, 'index']);
+        Route::post('/', [MitraController::class, 'store']);
+        Route::put('/{id}', [MitraController::class, 'update']);
+        Route::delete('/{id}', [MitraController::class, 'destroy']);
         Route::get('/search', [MitraController::class, 'searchMitra'])->name('mitra.search');
         Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
     });

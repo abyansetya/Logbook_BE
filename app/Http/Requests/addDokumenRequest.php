@@ -15,6 +15,17 @@ class addDokumenRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'nomor_dokumen_mitra' => $this->nomor_dokumen_mitra === '-' ? null : $this->nomor_dokumen_mitra,
+            'nomor_dokumen_undip' => $this->nomor_dokumen_undip === '-' ? null : $this->nomor_dokumen_undip,
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array

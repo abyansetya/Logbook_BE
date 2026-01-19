@@ -20,17 +20,27 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class LogbookController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            // Ambil data langsung dari Dokumen agar sesuai baris tabel di UI
-            $dokumen = Dokumen::with([
-                'mitra',         // Untuk kolom "Nama Mitra"
-                'jenisDokumen',  // Untuk kolom "Jenis Dokumen"
-                'status'         // Untuk kolom "Status"
-            ])
-            ->latest() // Menampilkan dokumen terbaru di atas
-            ->paginate(10);
+            $query = Dokumen::with([
+                'mitra',         
+                'jenisDokumen',  
+                'status'         
+            ]);
+
+            // Search logic
+            if ($request->has('q')) {
+                $search = $request->query('q');
+                $query->where(function($q) use ($search) {
+                    $q->where('judul_dokumen', 'LIKE', "%{$search}%")
+                      ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
+                      ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
+                });
+            }
+
+            $perPage = $request->input('per_page', 10);
+            $dokumen = $query->latest()->paginate($perPage);
 
             return response()->json([
                 'success' => true,

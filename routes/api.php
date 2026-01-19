@@ -56,13 +56,17 @@ Route::prefix('v1')->group(function () {
     Route::prefix('logbook')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
         Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
-        Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
-        Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
-        Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
-        Route::post('/add-log', [LogbookController::class, 'addLog']);
-        Route::put('/edit-log/{id}', [LogbookController::class, 'updateLog']);
-        Route::delete('/delete-log/{id}', [LogbookController::class, 'deleteLog']);
+
+        // 🛡️ Admin only actions
+        Route::middleware('role:Admin')->group(function () {
+            Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
+            Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
+            Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
+            Route::post('/add-log', [LogbookController::class, 'addLog']);
+            Route::put('/edit-log/{id}', [LogbookController::class, 'updateLog']);
+            Route::delete('/delete-log/{id}', [LogbookController::class, 'deleteLog']);
+        });
     });
 
     // Pindahkan ke luar grup untuk testing

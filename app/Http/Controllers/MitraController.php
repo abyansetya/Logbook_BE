@@ -15,8 +15,8 @@ class MitraController extends Controller
             $query = Mitra::with('klasifikasiMitra'); // Eager load klasifikasi
 
             // Search logic
-            if ($request->has('search')) {
-                $search = $request->search;
+            if ($request->has('q')) {
+                $search = $request->query('q');
                 $query->where(function($q) use ($search) {
                     $q->where('nama', 'LIKE', "%{$search}%")
                       ->orWhere('alamat', 'LIKE', "%{$search}%")

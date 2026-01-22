@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->roles()->whereIn('nama', $roles)->exists();
     }
+
+    public function activities()
+    {
+        return $this->hasMany(ActivityLogs::class);
+    }
 }

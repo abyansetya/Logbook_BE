@@ -74,7 +74,13 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
         Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');
-    });
+        Route::get('/getKlasifikasi', [HelperController::class, 'getKlasifikasi'])->name('helper.getKlasifikasi');
+        Route::get('/activities', [HelperController::class, 'getRecentActivities'])->name('helper.activities');
+
+        Route::middleware('role:Admin')->group(function () {
+            Route::post('/save-activities', [HelperController::class, 'saveActivities'])->name('logbook.save-activities');
+        }); 
+    }); 
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [MitraController::class, 'index']);

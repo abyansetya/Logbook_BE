@@ -23,10 +23,16 @@ class MitraController extends Controller
                       ->orWhere('contact_person', 'LIKE', "%{$search}%");
                 });
             }
+            
+            // Classification filter
+            if ($request->has('klasifikasi') && $request->query('klasifikasi') !== 'all') {
+                $klasifikasiId = $request->query('klasifikasi');
+                $query->where('klasifikasi_mitra_id', $klasifikasiId);
+            }
 
             // Pagination (default 10)
             $perPage = $request->input('per_page', 10);
-            $mitras = $query->paginate($perPage);
+            $mitras = $query->latest()->paginate($perPage);
 
             return response()->json([
                 'success' => true,

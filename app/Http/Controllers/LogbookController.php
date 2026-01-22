@@ -39,8 +39,23 @@ class LogbookController extends Controller
                 });
             }
 
+            // Status filter
+            if ($request->has('status') && $request->query('status') !== 'all') {
+                $statusId = $request->query('status');
+                $query->where('status_id', $statusId);
+            }
+
+            // Jenis Dokumen filter
+            if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
+                $jenisId = $request->query('jenis_dokumen');
+                $query->where('jenis_dokumen_id', $jenisId);
+            }
+
             $perPage = $request->input('per_page', 10);
-            $dokumen = $query->latest()->paginate($perPage);
+            $order = $request->query('order', 'desc');
+            if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
+
+            $dokumen = $query->orderBy('created_at', $order)->paginate($perPage);
 
             return response()->json([
                 'success' => true,

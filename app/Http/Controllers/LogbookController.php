@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\addDokumenRequest;
 use App\Http\Requests\addLogRequest;
+use App\Http\Requests\editDokumenRequest; // Added this line
 use App\Http\Requests\updateLogRequest;
 use App\Http\Resources\DokumenResource;
 use App\Http\Resources\MitraResource;
@@ -255,7 +256,7 @@ class LogbookController extends Controller
     }
 
 
-    public function updateDokumen(addDokumenRequest $request, $id): JsonResponse
+    public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
     {
         DB::beginTransaction();
         try {

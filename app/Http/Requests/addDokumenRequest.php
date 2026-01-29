@@ -30,8 +30,7 @@ class addDokumenRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Ambil ID dari parameter route /logbook/edit-dokumen/{id}
-        $id = $this->route('id');
+
 
         return [
             'mitra_id' => ['required', 'exists:mitra,id'],
@@ -42,8 +41,7 @@ class addDokumenRequest extends FormRequest
                 'nullable', 
                 'string', 
                 'max:255', 
-                // Tambahkan .$id di akhir untuk mengabaikan ID yang sedang diedit
-                'unique:dokumen,nomor_dokumen_undip,' . $id 
+                'unique:dokumen,nomor_dokumen_undip'
             ],
             'judul_dokumen' => ['required', 'string', 'max:255'],
             'tanggal_masuk' => ['nullable', 'date'],

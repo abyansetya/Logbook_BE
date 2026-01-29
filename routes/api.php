@@ -53,7 +53,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [DashboardController::class, 'getDashboardStats'])->name('dashboard.index');
     });
 
-    Route::prefix('logbook')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('logbook')->middleware('auth:sanctum', 'throttle:api')->group(function () {
         Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
         Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');

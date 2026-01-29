@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
@@ -68,6 +69,9 @@ class UserController extends Controller
             // Assuming a user only has one primary role for this system context
             $user->roles()->sync([$role->id]);
 
+            // Invalidate cache user yang rolenya diubah
+            Cache::forget("user_profile_{$id}");
+
             DB::commit();
 
             Log::info('User role updated', [
@@ -113,6 +117,9 @@ class UserController extends Controller
             // Delete related data if needed (e.g. detach roles)
             $user->roles()->detach();
             $user->tokens()->delete();
+            
+            // Invalidate cache user yang dihapus
+            Cache::forget("user_profile_{$id}");
             
             // Delete user
             $user->delete();

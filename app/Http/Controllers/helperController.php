@@ -9,6 +9,7 @@ use App\Models\KlasifikasiMitra;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class HelperController extends Controller
 {
@@ -18,8 +19,10 @@ class HelperController extends Controller
     public function getStatus(): JsonResponse
     {
         try {
-            // Mengambil semua data status
-            $status = Status::all();
+            // Gunakan cache selama 24 jam (86400 detik)
+            $status = Cache::remember('helper_statuses', 86400, function () {
+                return Status::all();
+            });
 
             // Mengembalikan response sukses
             return response()->json([
@@ -44,7 +47,10 @@ class HelperController extends Controller
     public function getKlasifikasi(): JsonResponse
     {
         try {
-            $klasifikasi = KlasifikasiMitra::all();
+            // Gunakan cache selama 24 jam (86400 detik)
+            $klasifikasi = Cache::remember('helper_klasifikasi', 86400, function () {
+                return KlasifikasiMitra::all();
+            });
 
             return response()->json([
                 'success' => true,

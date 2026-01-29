@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -198,12 +199,18 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user()->load('roles');
+        $user = $request->user();
+        
+        // Cache data profil user (termasuk role) selama 1 jam
+        $userData = Cache::remember("user_profile_{$user->id}", 3600, function () use ($user) {
+            $user->load('roles');
+            return $this->formatUserResponse($user);
+        });
 
         return response()->json([
             'message' => 'Data user berhasil diambil',
             'data' => [
-                'user' => $this->formatUserResponse($user),
+                'user' => $userData,
             ],
         ]);
     }

@@ -8,6 +8,7 @@ use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileController extends Controller
 {
@@ -26,6 +27,9 @@ class ProfileController extends Controller
         }
 
         $user->update($updatedData);
+
+        // Hapus cache profile agar data terbaru diambil pada request berikutnya
+        Cache::forget("user_profile_{$user->id}");
 
         //reload user with roles
         $user->load('roles');

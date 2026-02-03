@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
         Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
+        Route::get('/export', [LogbookController::class, 'export'])->name('logbook.export');
 
         // 🛡️ Admin only actions
         Route::middleware('role:Admin')->group(function () {

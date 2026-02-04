@@ -16,7 +16,6 @@ class Log extends Model
         'mitra_id',
         'dokumen_id',
         'keterangan',
-        'contact_person',
         'tanggal_log'
     ];
 

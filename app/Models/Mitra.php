@@ -16,6 +16,7 @@ class Mitra extends Model
         'klasifikasi_mitra_id',
         'alamat',
         'contact_person',
+        'status',
     ];
 
     public function klasifikasiMitra()

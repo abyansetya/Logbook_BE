@@ -20,6 +20,7 @@ class Dokumen extends Model
         'status_id',
         'tanggal_masuk',
         'tanggal_terbit',
+        'contact_person',
     ];
 
     protected $casts = [

@@ -33,6 +33,7 @@ class DokumenSeeder extends Seeder
                 'status_id' => 5, // Terbit
                 'tanggal_masuk' => $tanggalMasukMoU,
                 'tanggal_terbit' => $tanggalTerbitMoU,
+                'contact_person' => $faker->name . ' - ' . $faker->phoneNumber,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -53,6 +54,7 @@ class DokumenSeeder extends Seeder
                     'status_id' => $statusId, 
                     'tanggal_masuk' => $tanggalMasukMoA,
                     'tanggal_terbit' => null,
+                    'contact_person' => $faker->name . ' - ' . $faker->phoneNumber,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -73,6 +75,7 @@ class DokumenSeeder extends Seeder
                     'status_id' => 1, // Inisiasi
                     'tanggal_masuk' => $tanggalMasukIA,
                     'tanggal_terbit' => null,
+                    'contact_person' => $faker->name . ' - ' . $faker->phoneNumber,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

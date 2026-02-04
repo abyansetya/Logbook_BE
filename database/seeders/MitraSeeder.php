@@ -99,6 +99,7 @@ class MitraSeeder extends Seeder
                 'klasifikasi_mitra_id' => $partner['klasifikasi_mitra_id'],
                 'alamat' => $partner['alamat'],
                 'contact_person' => $partner['contact_person'],
+                'status' => 'Approved',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

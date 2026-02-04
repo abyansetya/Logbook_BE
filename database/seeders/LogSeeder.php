@@ -24,7 +24,6 @@ class LogSeeder extends Seeder
                 'dokumen_id' => $dokumen->id,
                 'tanggal_log' => $dokumen->tanggal_masuk,
                 'keterangan' => 'Dokumen diinisiasi dan masuk ke sistem',
-                'contact_person' => $faker->name . ' - ' . $faker->jobTitle,
                 'created_at' => $dokumen->tanggal_masuk,
                 'updated_at' => $dokumen->tanggal_masuk,
             ]);
@@ -39,7 +38,6 @@ class LogSeeder extends Seeder
                     'dokumen_id' => $dokumen->id,
                     'tanggal_log' => $tanggalLog2,
                     'keterangan' => 'Draf dokumen diperiksa oleh bagian hukum/kerjasama',
-                    'contact_person' => $faker->name . ' - Staff Legal',
                     'created_at' => $tanggalLog2,
                     'updated_at' => $tanggalLog2,
                 ]);
@@ -55,7 +53,6 @@ class LogSeeder extends Seeder
                     'dokumen_id' => $dokumen->id,
                     'tanggal_log' => $tanggalLog3,
                     'keterangan' => 'Dokumen resmi diterbitkan dan diarsipkan',
-                    'contact_person' => $faker->name . ' - Admin Arsip',
                     'created_at' => $tanggalLog3,
                     'updated_at' => $tanggalLog3,
                 ]);

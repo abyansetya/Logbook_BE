@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('klasifikasi_mitra_id');
             $table->text('alamat')->nullable();
             $table->string('contact_person')->nullable();
-            $table->string('logo_mitra')->nullable();
             $table->timestamps();
 
             $table->foreign('klasifikasi_mitra_id')

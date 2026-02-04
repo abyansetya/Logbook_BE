@@ -56,7 +56,7 @@ class LogbookController extends Controller
             $order = $request->query('order', 'desc');
             if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
 
-            $dokumen = $query->orderBy('created_at', $order)->paginate($perPage);
+            $dokumen = $query->orderBy('tanggal_masuk', $order)->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -342,7 +342,11 @@ class LogbookController extends Controller
                 $query->where('jenis_dokumen_id', $jenisId);
             }
 
-            $dokumens = $query->orderBy('created_at', 'desc')->get();
+            $perPage = $request->input('per_page', 10);
+            $order = $request->query('order', 'desc');
+            if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
+
+            $dokumens = $query->orderBy('tanggal_masuk', $order)->get();
 
             // Group by Mitra
             $groupedData = $dokumens->groupBy(function ($item) {
@@ -367,12 +371,19 @@ class LogbookController extends Controller
             $no = 1;
 
             foreach ($groupedData as $mitraName => $docs) {
+                // Sort documents within the group by tanggal_masuk
+                $docs = ($order === 'desc') 
+                    ? $docs->sortByDesc('tanggal_masuk') 
+                    : $docs->sortBy('tanggal_masuk');
+
                 // Calculate total rows for this Mitra
                 $mitraStartRow = $row;
                 
                 foreach ($docs as $dokumen) {
                     $dokumenStartRow = $row;
-                    $logs = $dokumen->logs->sortBy('tanggal_log');
+                    $logs = ($order === 'desc') 
+                        ? $dokumen->logs->sortByDesc('tanggal_log') 
+                        : $dokumen->logs->sortBy('tanggal_log');
 
                     // If logs exist, iterate them. If not, one row for document.
                     if ($logs->count() > 0) {

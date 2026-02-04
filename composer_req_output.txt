@@ -1,0 +1,21 @@
+Cannot use phpoffice/phpspreadsheet's latest version 5.4.0 as it requires ext-gd * which is missing from your platform.
+
+In PackageDiscoveryTrait.php line 325:
+                    
+  Package phpoffic  
+  e/phpspreadsheet  
+   has requirement  
+  s incompatible w  
+  ith your PHP ver  
+  sion, PHP extens  
+  ions and Compose  
+  r version:        
+    - phpoffice/ph  
+  pspreadsheet 5.4  
+  .0 requires ext-  
+  gd * but it is n  
+  ot present.       
+                    
+
+require [--dev] [--dry-run] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--fixed] [--no-suggest] [--no-progress] [--no-update] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--update-no-dev] [-w|--update-with-dependencies] [-W|--update-with-all-dependencies] [--with-dependencies] [--with-all-dependencies] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--prefer-stable] [--prefer-lowest] [-m|--minimal-changes] [--sort-packages] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--] [<packages>...]
+

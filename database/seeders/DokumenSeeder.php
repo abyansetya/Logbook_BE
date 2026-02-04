@@ -13,93 +13,70 @@ class DokumenSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('dokumen')->insert([
+        // Ambil semua mitra
+        $mitras = DB::table('mitra')->get();
+        $faker = \Faker\Factory::create('id_ID');
+
+        foreach ($mitras as $mitra) {
             // ======================
-            // BANK CENTRAL ASIA (id:1)
+            // Generate MoU for each Mitra (Assuming almost all have MoU)
             // ======================
-
-            [
-                'mitra_id' => 1,
+            $tanggalMasukMoU = Carbon::now()->subMonths(rand(6, 12));
+            $tanggalTerbitMoU = (clone $tanggalMasukMoU)->addMonths(1);
+            
+            $docId = DB::table('dokumen')->insertGetId([
+                'mitra_id' => $mitra->id,
                 'jenis_dokumen_id' => 1, // MoU
-                'nomor_dokumen_mitra' => 'BCA/MOU/001/2024',
-                'nomor_dokumen_undip' => 'UNDIP/MOU/001/2024',
-                'judul_dokumen' => 'Kesepakatan Bersama UNDIP dan Bank Central Asia',
+                'nomor_dokumen_mitra' => strtoupper(substr($mitra->nama, 0, 3)) . '/MOU/' . rand(100, 999) . '/' . $tanggalTerbitMoU->year,
+                'nomor_dokumen_undip' => 'UNDIP/MOU/' . rand(100, 999) . '/' . $tanggalTerbitMoU->year,
+                'judul_dokumen' => 'Nota Kesepahaman antara Universitas Diponegoro dan ' . $mitra->nama . ' tentang Pendidikan, Penelitian, dan Pengabdian kepada Masyarakat',
                 'status_id' => 5, // Terbit
-                'tanggal_masuk' => Carbon::now()->subMonths(3),
-                'tanggal_terbit' => Carbon::now()->subMonths(2),
+                'tanggal_masuk' => $tanggalMasukMoU,
+                'tanggal_terbit' => $tanggalTerbitMoU,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'mitra_id' => 1,
-                'jenis_dokumen_id' => 2, // MoA
-                'nomor_dokumen_mitra' => null,
-                'nomor_dokumen_undip' => null,
-                'judul_dokumen' => 'Perjanjian Kerja Sama UNDIP dan Bank Central Asia',
-                'status_id' => 2, // Naskah Dikirim
-                'tanggal_masuk' => Carbon::now()->subMonths(1),
-                'tanggal_terbit' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            ]);
 
-            // ============================
-            // BANK RAKYAT INDONESIA (id:2)
-            // ============================
+            // ======================
+            // Generate MoA/PKS (Perjanjian Kerja Sama) for random Mitra
+            // ======================
+            if (rand(0, 1)) {
+                $tanggalMasukMoA = Carbon::now()->subMonths(rand(1, 5));
+                $statusId = rand(1, 4); // Random status not yet published
+                
+                DB::table('dokumen')->insert([
+                    'mitra_id' => $mitra->id,
+                    'jenis_dokumen_id' => 2, // MoA
+                    'nomor_dokumen_mitra' => null,
+                    'nomor_dokumen_undip' => null,
+                    'judul_dokumen' => 'Perjanjian Kerja Sama antara Fakultas Teknik UNDIP dan ' . $mitra->nama . ' tentang Program Magang Mahasiswa',
+                    'status_id' => $statusId, 
+                    'tanggal_masuk' => $tanggalMasukMoA,
+                    'tanggal_terbit' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
-            [
-                'mitra_id' => 2,
-                'jenis_dokumen_id' => 1, // MoU
-                'nomor_dokumen_mitra' => 'BRI/MOU/010/2024',
-                'nomor_dokumen_undip' => 'UNDIP/MOU/010/2024',
-                'judul_dokumen' => 'Kesepakatan Bersama UNDIP dan Bank Rakyat Indonesia',
-                'status_id' => 5, // Terbit
-                'tanggal_masuk' => Carbon::now()->subMonths(4),
-                'tanggal_terbit' => Carbon::now()->subMonths(3),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'mitra_id' => 2,
-                'jenis_dokumen_id' => 3, // IA
-                'nomor_dokumen_mitra' => null,
-                'nomor_dokumen_undip' => null,
-                'judul_dokumen' => 'Implementation Arrangement Program Magang BRI–UNDIP',
-                'status_id' => 3, // Acc Rektor
-                'tanggal_masuk' => Carbon::now()->subWeeks(3),
-                'tanggal_terbit' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            // =========================
-            // UNIVERSITAS INDONESIA (id:3)
-            // =========================
-
-            [
-                'mitra_id' => 3,
-                'jenis_dokumen_id' => 1, // MoU
-                'nomor_dokumen_mitra' => 'UI/MOU/2024/05',
-                'nomor_dokumen_undip' => 'UNDIP/MOU/2024/05',
-                'judul_dokumen' => 'Kesepakatan Bersama UNDIP dan Universitas Indonesia',
-                'status_id' => 5, // Terbit
-                'tanggal_masuk' => Carbon::now()->subMonths(6),
-                'tanggal_terbit' => Carbon::now()->subMonths(5),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'mitra_id' => 3,
-                'jenis_dokumen_id' => 3, // IA
-                'nomor_dokumen_mitra' => null,
-                'nomor_dokumen_undip' => null,
-                'judul_dokumen' => 'Implementation Arrangement Pertukaran Mahasiswa UI–UNDIP',
-                'status_id' => 1, // Inisiasi & Proses
-                'tanggal_masuk' => Carbon::now()->subDays(10),
-                'tanggal_terbit' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+            // ======================
+            // Generate IA (Implementation Arrangement)
+            // ======================
+            if (rand(0, 1)) {
+                 $tanggalMasukIA = Carbon::now()->subWeeks(rand(1, 8));
+                 
+                 DB::table('dokumen')->insert([
+                    'mitra_id' => $mitra->id,
+                    'jenis_dokumen_id' => 3, // IA
+                    'nomor_dokumen_mitra' => null,
+                    'nomor_dokumen_undip' => null,
+                    'judul_dokumen' => 'Implementation Arrangement: Kuliah Tamu oleh Praktisi dari ' . $mitra->nama,
+                    'status_id' => 1, // Inisiasi
+                    'tanggal_masuk' => $tanggalMasukIA,
+                    'tanggal_terbit' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 }

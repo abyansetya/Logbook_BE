@@ -1,0 +1,19 @@
+Starting export debug...
+Fetched 32 documents.
+Grouped data.
+
+   Error 
+
+  Class "PhpOffice\PhpSpreadsheet\Spreadsheet" not found
+
+  at debug_export.php:29
+     25Γûò     });
+     26Γûò 
+     27Γûò     echo "Grouped data.\n";
+     28Γûò 
+  Γ₧£  29Γûò     $spreadsheet = new Spreadsheet();
+     30Γûò     $sheet = $spreadsheet->getActiveSheet();
+     31Γûò 
+     32Γûò     // Set Header
+     33Γûò     $headers = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Status', 'Kriteria Mitra'];
+

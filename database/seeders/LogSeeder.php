@@ -12,67 +12,54 @@ class LogSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('log')->insert([
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2025-12-20',
-                'keterangan' => 'Inisiasi kerja sama dan penerimaan dokumen awal',
-                'contact_person' => 'Andi - Legal Mitra',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2025-12-23',
-                'keterangan' => 'Dokumen diproses oleh unit terkait',
-                'contact_person' => 'Budi - Admin Kerja Sama',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2025-12-27',
-                'keterangan' => 'Naskah dikirim ke pimpinan untuk persetujuan',
-                'contact_person' => 'Citra - Sekretariat',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2026-01-02',
-                'keterangan' => 'Dokumen disetujui oleh Rektor',
-                'contact_person' => 'Sekretariat Rektor',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2026-01-04',
-                'keterangan' => 'Naskah dicetak dan disiapkan untuk terbit',
-                'contact_person' => 'Admin Percetakan',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'user_id' => 1,
-                'mitra_id' => 1,
-                'dokumen_id' => 1,
-                'tanggal_log' => '2026-01-06',
-                'keterangan' => 'Dokumen resmi diterbitkan',
-                'contact_person' => 'Admin Kerja Sama',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        $dokumens = DB::table('dokumen')->get();
+        $users = DB::table('users')->pluck('id'); // Get all user IDs
+        $faker = \Faker\Factory::create('id_ID');
+
+        foreach ($dokumens as $dokumen) {
+            // Log 1: Inisiasi (Always exists)
+            DB::table('log')->insert([
+                'user_id' => $users->random(), // Random user
+                'mitra_id' => $dokumen->mitra_id,
+                'dokumen_id' => $dokumen->id,
+                'tanggal_log' => $dokumen->tanggal_masuk,
+                'keterangan' => 'Dokumen diinisiasi dan masuk ke sistem',
+                'contact_person' => $faker->name . ' - ' . $faker->jobTitle,
+                'created_at' => $dokumen->tanggal_masuk,
+                'updated_at' => $dokumen->tanggal_masuk,
+            ]);
+
+            // Log 2: Proses (Random)
+            if ($dokumen->status_id > 1) {
+                $tanggalLog2 = \Carbon\Carbon::parse($dokumen->tanggal_masuk)->addDays(rand(2, 5));
+                
+                DB::table('log')->insert([
+                     'user_id' => $users->random(),
+                    'mitra_id' => $dokumen->mitra_id,
+                    'dokumen_id' => $dokumen->id,
+                    'tanggal_log' => $tanggalLog2,
+                    'keterangan' => 'Draf dokumen diperiksa oleh bagian hukum/kerjasama',
+                    'contact_person' => $faker->name . ' - Staff Legal',
+                    'created_at' => $tanggalLog2,
+                    'updated_at' => $tanggalLog2,
+                ]);
+            }
+
+            // Log 3: Jika Terbit or nearing terbit
+            if ($dokumen->status_id == 5) { // Terbit
+                $tanggalLog3 = \Carbon\Carbon::parse($dokumen->tanggal_terbit);
+                
+                DB::table('log')->insert([
+                     'user_id' => $users->random(),
+                    'mitra_id' => $dokumen->mitra_id,
+                    'dokumen_id' => $dokumen->id,
+                    'tanggal_log' => $tanggalLog3,
+                    'keterangan' => 'Dokumen resmi diterbitkan dan diarsipkan',
+                    'contact_person' => $faker->name . ' - Admin Arsip',
+                    'created_at' => $tanggalLog3,
+                    'updated_at' => $tanggalLog3,
+                ]);
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@ class DokumenResource extends JsonResource
             'nomor_dokumen_undip' => $this->nomor_dokumen_undip ?? '-',
             'tanggal_masuk' => $this->tanggal_masuk,
             'tanggal_terbit' => $this->tanggal_terbit,
+            'contact_person' => $this->contact_person,
             
             // Mengambil nama dari relasi, bukan cuma ID-nya
             'jenis_dokumen' => $this->jenisDokumen ? $this->jenisDokumen->nama : null,

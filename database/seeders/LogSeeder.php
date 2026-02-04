@@ -14,6 +14,7 @@ class LogSeeder extends Seeder
     {
         $dokumens = DB::table('dokumen')->get();
         $users = DB::table('users')->pluck('id'); // Get all user IDs
+        $units = DB::table('unit')->pluck('id'); // Get all unit IDs
         $faker = \Faker\Factory::create('id_ID');
 
         foreach ($dokumens as $dokumen) {
@@ -22,6 +23,7 @@ class LogSeeder extends Seeder
                 'user_id' => $users->random(), // Random user
                 'mitra_id' => $dokumen->mitra_id,
                 'dokumen_id' => $dokumen->id,
+                'unit_id' => $units->random(),
                 'tanggal_log' => $dokumen->tanggal_masuk,
                 'keterangan' => 'Dokumen diinisiasi dan masuk ke sistem',
                 'created_at' => $dokumen->tanggal_masuk,
@@ -36,6 +38,7 @@ class LogSeeder extends Seeder
                      'user_id' => $users->random(),
                     'mitra_id' => $dokumen->mitra_id,
                     'dokumen_id' => $dokumen->id,
+                    'unit_id' => $units->random(),
                     'tanggal_log' => $tanggalLog2,
                     'keterangan' => 'Draf dokumen diperiksa oleh bagian hukum/kerjasama',
                     'created_at' => $tanggalLog2,
@@ -51,6 +54,7 @@ class LogSeeder extends Seeder
                      'user_id' => $users->random(),
                     'mitra_id' => $dokumen->mitra_id,
                     'dokumen_id' => $dokumen->id,
+                    'unit_id' => $units->random(),
                     'tanggal_log' => $tanggalLog3,
                     'keterangan' => 'Dokumen resmi diterbitkan dan diarsipkan',
                     'created_at' => $tanggalLog3,

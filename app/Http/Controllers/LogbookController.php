@@ -103,6 +103,7 @@ class LogbookController extends Controller
                 'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
                 'status_id'           => $validated['status_id'],
                 'judul_dokumen'       => $validated['judul_dokumen'],
+                'contact_person'      => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
                 'tanggal_masuk'       => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
@@ -144,7 +145,6 @@ class LogbookController extends Controller
                 'mitra_id' => $validated['mitra_id'],
                 'dokumen_id' => $validated['dokumen_id'],
                 'keterangan' => $validated['keterangan'],
-                'contact_person' => $validated['contact_person'],
                 'tanggal_log' => $validated['tanggal_log']
             ]);
 
@@ -270,6 +270,7 @@ class LogbookController extends Controller
                 'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
                 'status_id'           => $validated['status_id'],
                 'judul_dokumen'       => $validated['judul_dokumen'],
+                'contact_person'      => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
                 'tanggal_masuk'       => $validated['tanggal_masuk'],

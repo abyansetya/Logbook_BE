@@ -23,9 +23,7 @@ class LogResource extends JsonResource
                 
                 // Kolom keterangan (Inisiasi kerja sama oleh mitra, dll)
                 'keterangan' => $this->keterangan,
-                
-                // Kolom contact person (Andi - Legal BCA)
-                'contact_person' => $this->contact_person,
+                'unit_name' => $this->unit->nama ?? null,
                 'updated_at' => optional($this->updated_at)->translatedFormat('d F Y'),
                 // Data user yang menginput log (Admin Undip)
                 'admin' => [

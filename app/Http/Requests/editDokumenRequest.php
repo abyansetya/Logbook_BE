@@ -59,6 +59,7 @@
                 }
             ],
             'judul_dokumen' => ['required', 'string', 'max:255'],
+            'contact_person' => ['nullable', 'string', 'max:255'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
         ];
@@ -81,6 +82,7 @@
              'status_id.exists' => 'Status tidak valid.',
              'judul_dokumen.required' => 'Judul dokumen wajib diisi.',
              'judul_dokumen.max' => 'Judul dokumen maksimal 255 karakter.',
+             'contact_person.max' => 'Nama contact person maksimal 255 karakter.',
              'tanggal_masuk.date' => 'Format tanggal masuk tidak valid.',
              'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
              'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',

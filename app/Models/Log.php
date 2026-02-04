@@ -15,6 +15,7 @@ class Log extends Model
         'user_id',
         'mitra_id',
         'dokumen_id',
+        'unit_id',
         'keterangan',
         'tanggal_log'
     ];
@@ -32,5 +33,10 @@ class Log extends Model
     public function dokumen()
     {
         return $this->belongsTo(Dokumen::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 }

@@ -30,6 +30,7 @@ class DokumenSeeder extends Seeder
                 'nomor_dokumen_mitra' => strtoupper(substr($mitra->nama, 0, 3)) . '/MOU/' . rand(100, 999) . '/' . $tanggalTerbitMoU->year,
                 'nomor_dokumen_undip' => 'UNDIP/MOU/' . rand(100, 999) . '/' . $tanggalTerbitMoU->year,
                 'judul_dokumen' => 'Nota Kesepahaman antara Universitas Diponegoro dan ' . $mitra->nama . ' tentang Pendidikan, Penelitian, dan Pengabdian kepada Masyarakat',
+                'tanggal_dokumen' => $tanggalMasukMoU,
                 'status_id' => 5, // Terbit
                 'tanggal_masuk' => $tanggalMasukMoU,
                 'tanggal_terbit' => $tanggalTerbitMoU,
@@ -51,6 +52,7 @@ class DokumenSeeder extends Seeder
                     'nomor_dokumen_mitra' => null,
                     'nomor_dokumen_undip' => null,
                     'judul_dokumen' => 'Perjanjian Kerja Sama antara Fakultas Teknik UNDIP dan ' . $mitra->nama . ' tentang Program Magang Mahasiswa',
+                    'tanggal_dokumen' => $tanggalMasukMoA,
                     'status_id' => $statusId, 
                     'tanggal_masuk' => $tanggalMasukMoA,
                     'tanggal_terbit' => null,
@@ -72,6 +74,7 @@ class DokumenSeeder extends Seeder
                     'nomor_dokumen_mitra' => null,
                     'nomor_dokumen_undip' => null,
                     'judul_dokumen' => 'Implementation Arrangement: Kuliah Tamu oleh Praktisi dari ' . $mitra->nama,
+                    'tanggal_dokumen' => $tanggalMasukIA,
                     'status_id' => 1, // Inisiasi
                     'tanggal_masuk' => $tanggalMasukIA,
                     'tanggal_terbit' => null,

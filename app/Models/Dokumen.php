@@ -17,6 +17,7 @@ class Dokumen extends Model
         'nomor_dokumen_mitra',
         'nomor_dokumen_undip',
         'judul_dokumen',
+        'tanggal_dokumen',
         'status_id',
         'tanggal_masuk',
         'tanggal_terbit',
@@ -24,6 +25,7 @@ class Dokumen extends Model
     ];
 
     protected $casts = [
+        'tanggal_dokumen' => 'date',
         'tanggal_masuk' => 'date',
         'tanggal_terbit' => 'date',
     ];

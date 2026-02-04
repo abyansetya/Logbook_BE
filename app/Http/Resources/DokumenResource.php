@@ -17,10 +17,11 @@ class DokumenResource extends JsonResource
         return [
             'id' => $this->id,
             'judul_dokumen' => $this->judul_dokumen,
+            'tanggal_dokumen' => $this->tanggal_dokumen ? $this->tanggal_dokumen->format('Y-m-d') : null,
             'nomor_dokumen_mitra' => $this->nomor_dokumen_mitra ?? '-',
             'nomor_dokumen_undip' => $this->nomor_dokumen_undip ?? '-',
-            'tanggal_masuk' => $this->tanggal_masuk,
-            'tanggal_terbit' => $this->tanggal_terbit,
+            'tanggal_masuk' => $this->tanggal_masuk ? $this->tanggal_masuk->format('Y-m-d') : null,
+            'tanggal_terbit' => $this->tanggal_terbit ? $this->tanggal_terbit->format('Y-m-d') : null,
             'contact_person' => $this->contact_person,
             
             // Mengambil nama dari relasi, bukan cuma ID-nya

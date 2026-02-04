@@ -24,6 +24,7 @@ class addLogRequest extends FormRequest
             'user_id' => 'required',
             'mitra_id' => 'required',
             'dokumen_id' => 'required',
+            'unit_id'    => 'required|exists:unit,id',
             'keterangan'     => 'required|string|min:5',
             'tanggal_log'    => 'required|date',
         ];
@@ -39,6 +40,8 @@ class addLogRequest extends FormRequest
             'tanggal_log.date'        => 'Format tanggal tidak valid.',
             'keterangan.required'     => 'Keterangan aktivitas tidak boleh kosong.',
             'keterangan.min'          => 'Keterangan minimal berisi 5 karakter.',
+            'unit_id.required'        => 'Unit penginput harus diisi.',
+            'unit_id.exists'          => 'Unit yang dipilih tidak valid.',
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLogs;
 use App\Models\Status;
 use App\Models\KlasifikasiMitra;
+use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +115,31 @@ class HelperController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data aktivitas',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Mengambil semua daftar unit dari database
+     */
+    public function getUnit(): JsonResponse
+    {
+        try {
+            $unit = Cache::remember('helper_units', 86400, function () {
+                return Unit::all();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar unit berhasil diambil',
+                'data'    => $unit
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data unit',
                 'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }

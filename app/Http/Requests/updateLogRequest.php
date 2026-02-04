@@ -21,6 +21,7 @@ class updateLogRequest extends FormRequest
     {
         return [
             'user_id'        => 'required',
+            'unit_id'        => 'nullable|exists:unit,id',
             'keterangan'     => 'required|string|min:5',
             'tanggal_log'    => 'required|date',
         ];
@@ -37,6 +38,7 @@ class updateLogRequest extends FormRequest
             'keterangan.min'          => 'Keterangan terlalu singkat, minimal 5 karakter.',
             'tanggal_log.required'    => 'Tanggal log wajib diisi.',
             'tanggal_log.date'        => 'Format tanggal tidak valid.',
+            'unit_id.exists'          => 'Unit yang dipilih tidak valid.',
         ];
     }
 }

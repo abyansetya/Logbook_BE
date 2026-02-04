@@ -144,6 +144,7 @@ class LogbookController extends Controller
                 'user_id' => $validated['user_id'],
                 'mitra_id' => $validated['mitra_id'],
                 'dokumen_id' => $validated['dokumen_id'],
+                'unit_id' => $validated['unit_id'],
                 'keterangan' => $validated['keterangan'],
                 'tanggal_log' => $validated['tanggal_log']
             ]);
@@ -214,6 +215,7 @@ class LogbookController extends Controller
                 'keterangan'  => $request->keterangan,
                 'tanggal_log' => $request->tanggal_log ?? now(),
                 'user_id'     => Auth::id(), // Menggunakan helper id() yang benar
+                'unit_id'     => $request->unit_id,
                 'updated_at'     => now('Asia/Jakarta'),
             ]);
 

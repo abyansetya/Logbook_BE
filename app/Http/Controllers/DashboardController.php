@@ -13,15 +13,25 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController 
 {
-    public function getDashboardStats(): JsonResponse
+    public function getDashboardStats(\Illuminate\Http\Request $request): JsonResponse
     {
         try {
             // 1. Ambil SEMUA master status yang ada di database
             $allStatuses = Status::all();
-            $totalDocs = Dokumen::count();
+            
+            // Filter tahun
+            $tahun = $request->query('tahun');
+            
+            $docQuery = Dokumen::query();
+            if ($tahun && $tahun !== 'all') {
+                $docQuery->whereYear('tanggal_dokumen', $tahun);
+            }
+            
+            $totalDocs = (clone $docQuery)->count();
 
             // 2. Distribusi Status (Samping)
-            $documentStatus = Dokumen::select('status_id', DB::raw('count(*) as count'))
+            $documentStatus = (clone $docQuery)
+                ->select('status_id', DB::raw('count(*) as count'))
                 ->groupBy('status_id')
                 ->get()
                 ->map(function ($item) use ($totalDocs) {
@@ -57,6 +67,13 @@ class DashboardController
                 $chartData[] = $dataEntry;
             }
 
+            // Ambil tahun yang tersedia
+            $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
+                ->selectRaw('YEAR(tanggal_dokumen) as year')
+                ->distinct()
+                ->orderBy('year', 'desc')
+                ->pluck('year');
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -68,6 +85,7 @@ class DashboardController
                     'document_status' => $documentStatus,
                     'chart_data' => $chartData,
                     'all_status_names' => $allStatuses->pluck('nama'), // Kirim daftar nama status ke frontend
+                    'available_years' => $availableYears,
                     'stats_periodic' => [
                         'mitra_bulan_ini' => Mitra::whereMonth('created_at', Carbon::now()->month)->count(),
                         'dokumen_minggu_ini' => Dokumen::whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),

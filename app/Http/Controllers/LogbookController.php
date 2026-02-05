@@ -146,6 +146,15 @@ class LogbookController extends Controller
         try{
             $validated = $request->validated();
 
+            // Cek status dokumen
+            $dokumen = Dokumen::with('status')->findOrFail($validated['dokumen_id']);
+            if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat menambah log pada dokumen yang sudah terbit'
+                ], 422);
+            }
+
             $log= Log::create([
                 'user_id' => $validated['user_id'],
                 'mitra_id' => $validated['mitra_id'],

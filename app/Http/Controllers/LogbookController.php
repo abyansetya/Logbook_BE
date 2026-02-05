@@ -52,6 +52,12 @@ class LogbookController extends Controller
                 $query->where('jenis_dokumen_id', $jenisId);
             }
 
+            // Tahun filter
+            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
+                $tahun = $request->query('tahun');
+                $query->whereYear('tanggal_dokumen', $tahun);
+            }
+
             $perPage = $request->input('per_page', 10);
             $order = $request->query('order', 'desc');
             if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
@@ -343,6 +349,12 @@ class LogbookController extends Controller
             if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
                 $jenisId = $request->query('jenis_dokumen');
                 $query->where('jenis_dokumen_id', $jenisId);
+            }
+
+            // Tahun filter
+            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
+                $tahun = $request->query('tahun');
+                $query->whereYear('tanggal_dokumen', $tahun);
             }
 
             $perPage = $request->input('per_page', 10);

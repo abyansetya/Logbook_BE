@@ -93,6 +93,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
     });
 
+    Route::prefix('unit')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UnitController::class, 'index'])->name('unit.index');
+        
+        // 🛡️ Admin only actions
+        Route::middleware('role:Admin')->group(function () {
+            Route::post('/', [\App\Http\Controllers\UnitController::class, 'store'])->name('unit.store');
+            Route::put('/{id}', [\App\Http\Controllers\UnitController::class, 'update'])->name('unit.update');
+            Route::delete('/{id}', [\App\Http\Controllers\UnitController::class, 'destroy'])->name('unit.destroy');
+        });
+    });
+
     // ❤️ Health check
     Route::get('/health', function () {
         return response()->json([

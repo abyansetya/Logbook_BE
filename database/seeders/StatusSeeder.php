@@ -19,12 +19,12 @@ class StatusSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama' => 'Naskah Dikirim',
+                'nama' => 'Acc Rektor',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            [
-                'nama' => 'Acc Rektor',
+                        [
+                'nama' => 'Naskah Dikirim',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

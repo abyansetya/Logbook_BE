@@ -15,6 +15,8 @@ class UnitSeeder extends Seeder
         DB::table('unit')->insert([
             ['nama' => 'Rektorat', 'created_at' => now(), 'updated_at' => now()],
             ['nama' => 'Wakil Rektor I', 'created_at' => now(), 'updated_at' => now()],
+            ['nama' => 'Wakil Rektor II', 'created_at' => now(), 'updated_at' => now()],
+            ['nama' => 'Wakil Rektor III', 'created_at' => now(), 'updated_at' => now()],
             ['nama' => 'Wakil Rektor IV', 'created_at' => now(), 'updated_at' => now()],
             ['nama' => 'DHO', 'created_at' => now(), 'updated_at' => now()],
         ]);

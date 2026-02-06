@@ -104,6 +104,17 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    Route::prefix('status')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StatusController::class, 'index'])->name('status.index');
+        
+        // 🛡️ Admin only actions
+        Route::middleware('role:Admin')->group(function () {
+            Route::post('/', [\App\Http\Controllers\StatusController::class, 'store'])->name('status.store');
+            Route::put('/{id}', [\App\Http\Controllers\StatusController::class, 'update'])->name('status.update');
+            Route::delete('/{id}', [\App\Http\Controllers\StatusController::class, 'destroy'])->name('status.destroy');
+        });
+    });
+
     // ❤️ Health check
     Route::get('/health', function () {
         return response()->json([

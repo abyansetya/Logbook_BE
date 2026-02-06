@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unit;
+use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
-class UnitController extends Controller
+class StatusController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Unit::query();
+            $query = Status::query();
 
             // Search logic
             if ($request->has('q')) {
@@ -21,20 +21,20 @@ class UnitController extends Controller
             }
 
             $perPage = $request->input('per_page', 10);
-            $units = $query->orderBy('nama', 'asc')->paginate($perPage);
+            $statuses = $query->orderBy('created_at', 'asc')->paginate($perPage);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Daftar unit berhasil diambil',
+                'message' => 'Daftar status berhasil diambil',
                 'data'    => [
-                    'data' => $units->items(),
+                    'data' => $statuses->items(),
                     'meta' => [
-                        'current_page' => $units->currentPage(),
-                        'from' => $units->firstItem(),
-                        'last_page' => $units->lastPage(),
-                        'per_page' => $units->perPage(),
-                        'to' => $units->lastItem(),
-                        'total' => $units->total(),
+                        'current_page' => $statuses->currentPage(),
+                        'from' => $statuses->firstItem(),
+                        'last_page' => $statuses->lastPage(),
+                        'per_page' => $statuses->perPage(),
+                        'to' => $statuses->lastItem(),
+                        'total' => $statuses->total(),
                     ]
                 ]
             ], 200);
@@ -51,17 +51,17 @@ class UnitController extends Controller
         DB::beginTransaction();
         try {
             $validated = $request->validate([
-                'nama' => 'required|string|max:255|unique:unit,nama',
+                'nama' => 'required|string|max:255|unique:status,nama',
             ]);
 
-            $unit = Unit::create($validated);
+            $status = Status::create($validated);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Unit berhasil ditambahkan',
-                'data'    => $unit
+                'message' => 'Status berhasil ditambahkan',
+                'data'    => $status
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -75,7 +75,7 @@ class UnitController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan unit',
+                'message' => 'Gagal menambahkan status',
                 'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
@@ -85,20 +85,20 @@ class UnitController extends Controller
     {
         DB::beginTransaction();
         try {
-            $unit = Unit::findOrFail($id);
+            $status = Status::findOrFail($id);
             
             $validated = $request->validate([
-                'nama' => 'required|string|max:255|unique:unit,nama,' . $id,
+                'nama' => 'required|string|max:255|unique:status,nama,' . $id,
             ]);
 
-            $unit->update($validated);
+            $status->update($validated);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Unit berhasil diperbarui',
-                'data'    => $unit
+                'message' => 'Status berhasil diperbarui',
+                'data'    => $status
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -112,7 +112,7 @@ class UnitController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui unit',
+                'message' => 'Gagal memperbarui status',
                 'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
@@ -121,17 +121,17 @@ class UnitController extends Controller
     public function destroy($id): JsonResponse
     {
         try {
-            $unit = Unit::findOrFail($id);
-            $unit->delete();
+            $status = Status::findOrFail($id);
+            $status->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Unit berhasil dihapus'
+                'message' => 'Status berhasil dihapus'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus unit'
+                'message' => 'Gagal menghapus status'
             ], 500);
         }
     }

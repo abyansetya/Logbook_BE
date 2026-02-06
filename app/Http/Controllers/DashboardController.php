@@ -36,6 +36,7 @@ class DashboardController
                 ->get()
                 ->map(function ($item) use ($totalDocs) {
                     return [
+                        'status_id' => $item->status_id,
                         'status' => $item->status->nama ?? 'Unknown', 
                         'count' => $item->count,
                         'percentage' => $totalDocs > 0 ? round(($item->count / $totalDocs) * 100) : 0

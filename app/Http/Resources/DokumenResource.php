@@ -23,6 +23,8 @@ class DokumenResource extends JsonResource
             'tanggal_masuk' => $this->tanggal_masuk ? $this->tanggal_masuk->format('Y-m-d') : null,
             'tanggal_terbit' => $this->tanggal_terbit ? $this->tanggal_terbit->format('Y-m-d') : null,
             'contact_person' => $this->contact_person,
+            'draft_dokumen' => $this->draft_dokumen ? asset('storage/' . $this->draft_dokumen) : null,
+            'final_dokumen' => $this->final_dokumen ? asset('storage/' . $this->final_dokumen) : null,
             
             // Mengambil nama dari relasi, bukan cuma ID-nya
             'jenis_dokumen' => $this->jenisDokumen ? $this->jenisDokumen->nama : null,

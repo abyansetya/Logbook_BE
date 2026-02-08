@@ -22,6 +22,8 @@ class Dokumen extends Model
         'tanggal_masuk',
         'tanggal_terbit',
         'contact_person',
+        'draft_dokumen',
+        'final_dokumen',
     ];
 
     protected $casts = [

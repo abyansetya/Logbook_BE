@@ -62,6 +62,8 @@
             'contact_person' => ['nullable', 'string', 'max:255'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
+            'draft_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'final_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
         ];
     }
  
@@ -88,6 +90,12 @@
              'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',
              'nomor_dokumen_undip.max' => 'Nomor dokumen UNDIP maksimal 255 karakter.',
              'nomor_dokumen_undip.unique' => 'Nomor dokumen UNDIP sudah digunakan (ID: ' . ($id ?? 'NULL') . ').',
+             'draft_dokumen.file' => 'Draft dokumen harus berupa file.',
+             'draft_dokumen.mimes' => 'Draft dokumen harus berformat PDF.',
+             'draft_dokumen.max' => 'Ukuran draft dokumen maksimal 2MB.',
+             'final_dokumen.file' => 'Dokumen final harus berupa file.',
+             'final_dokumen.mimes' => 'Dokumen final harus berformat PDF.',
+             'final_dokumen.max' => 'Ukuran dokumen final maksimal 2MB.',
          ];
      }
  }

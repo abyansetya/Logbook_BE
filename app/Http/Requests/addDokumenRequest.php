@@ -47,6 +47,7 @@ class addDokumenRequest extends FormRequest
             'contact_person' => ['nullable', 'string', 'max:255'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
+            'draft_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
         ];
     }
 
@@ -70,6 +71,9 @@ class addDokumenRequest extends FormRequest
             'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',
             'nomor_dokumen_undip.max' => 'Nomor dokumen UNDIP maksimal 255 karakter.',
             'nomor_dokumen_undip.unique' => 'Nomor dokumen UNDIP sudah digunakan.',
+            'draft_dokumen.file' => 'Draft dokumen harus berupa file.',
+            'draft_dokumen.mimes' => 'Draft dokumen harus berformat PDF.',
+            'draft_dokumen.max' => 'Ukuran draft dokumen maksimal 2MB.',
         ];
     }
 }

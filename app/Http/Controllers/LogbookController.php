@@ -116,6 +116,13 @@ class LogbookController extends Controller
                 'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
             ]);
 
+            if ($request->hasFile('draft_dokumen')) {
+                $file = $request->file('draft_dokumen');
+                $filename = time() . '_draft_' . $file->getClientOriginalName();
+                $path = $file->storeAs('dokumen/drafts', $filename, 'public');
+                $dokumen->update(['draft_dokumen' => $path]);
+            }
+
             // Load relasi agar DokumenResource bisa menampilkan data lengkap ke React
             $dokumen->load(['mitra', 'jenisDokumen', 'status']);
 
@@ -293,6 +300,40 @@ class LogbookController extends Controller
                 'tanggal_masuk'       => $validated['tanggal_masuk'],
                 'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
             ]);
+
+            if ($request->hasFile('draft_dokumen')) {
+                // Delete old file if exists
+                if ($dokumen->draft_dokumen) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->draft_dokumen);
+                }
+                $file = $request->file('draft_dokumen');
+                $filename = time() . '_draft_' . $file->getClientOriginalName();
+                $path = $file->storeAs('dokumen/drafts', $filename, 'public');
+                $dokumen->update(['draft_dokumen' => $path]);
+            } elseif ($request->has('draft_dokumen') && empty($request->input('draft_dokumen'))) {
+                // Explicitly cleared
+                if ($dokumen->draft_dokumen) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->draft_dokumen);
+                }
+                $dokumen->update(['draft_dokumen' => null]);
+            }
+
+            if ($request->hasFile('final_dokumen')) {
+                // Delete old file if exists
+                if ($dokumen->final_dokumen) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->final_dokumen);
+                }
+                $file = $request->file('final_dokumen');
+                $filename = time() . '_final_' . $file->getClientOriginalName();
+                $path = $file->storeAs('dokumen/final', $filename, 'public');
+                $dokumen->update(['final_dokumen' => $path]);
+            } elseif ($request->has('final_dokumen') && empty($request->input('final_dokumen'))) {
+                // Explicitly cleared
+                if ($dokumen->final_dokumen) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->final_dokumen);
+                }
+                $dokumen->update(['final_dokumen' => null]);
+            }
 
             // Load relasi agar response lengkap
             $dokumen->load(['mitra', 'jenisDokumen', 'status']);

@@ -59,8 +59,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
         Route::get('/export', [LogbookController::class, 'export'])->name('logbook.export');
 
-        // 🛡️ Admin only actions
-        Route::middleware('role:Admin')->group(function () {
+        // 🛡️ Admin & Operator actions
+        Route::middleware('role:Admin,Operator')->group(function () {
             Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
             Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
             Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
@@ -79,18 +79,22 @@ Route::prefix('v1')->group(function () {
         Route::get('/getUnit', [HelperController::class, 'getUnit'])->name('helper.getUnit');
         Route::get('/activities', [HelperController::class, 'getRecentActivities'])->name('helper.activities');
 
-        Route::middleware('role:Admin')->group(function () {
+        Route::middleware('role:Admin,Operator')->group(function () {
             Route::post('/save-activities', [HelperController::class, 'saveActivities'])->name('logbook.save-activities');
         }); 
     }); 
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [MitraController::class, 'index']);
-        Route::post('/', [MitraController::class, 'store']);
-        Route::put('/{id}', [MitraController::class, 'update']);
-        Route::delete('/{id}', [MitraController::class, 'destroy']);
         Route::get('/search', [MitraController::class, 'searchMitra'])->name('mitra.search');
-        Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
+
+        // 🛡️ Admin & Operator actions
+        Route::middleware('role:Admin,Operator')->group(function () {
+            Route::post('/', [MitraController::class, 'store']);
+            Route::put('/{id}', [MitraController::class, 'update']);
+            Route::delete('/{id}', [MitraController::class, 'destroy']);
+            Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
+        });
     });
 
     Route::prefix('unit')->middleware('auth:sanctum')->group(function () {

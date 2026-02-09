@@ -13,9 +13,13 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('roles')->insert([
-            ['nama' => 'Admin'],
-            ['nama' => 'Viewer'],
-        ]);
+        $roles = ['Admin', 'Operator', 'Viewer'];
+
+        foreach ($roles as $role) {
+            DB::table('roles')->updateOrInsert(
+                ['nama' => $role],
+                ['updated_at' => now()]
+            );
+        }
     }
 }

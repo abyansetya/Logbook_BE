@@ -14,31 +14,32 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-         DB::table('users')->insert([
+        $users = [
             [
                 'id' => 1,
                 'nama' => 'Abyan Setya',
                 'email' => 'abyan@example.com',
                 'password' => Hash::make('password123'),
-                'created_at' => now(),
-                'updated_at' => now(),
             ],           
             [
                 'id' => 2,
                 'nama' => 'Fakhrel Andreaz',
                 'email' => 'fakhrel@example.com',
                 'password' => Hash::make('password123'),
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'id' => 3,
                 'nama' => 'Hedar Falah',
                 'email' => 'hedar@example.com',
                 'password' => Hash::make('password123'),
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
-        ]);
+        ];
+
+        foreach ($users as $user) {
+            DB::table('users')->updateOrInsert(
+                ['id' => $user['id']],
+                array_merge($user, ['created_at' => now(), 'updated_at' => now()])
+            );
+        }
     }
 }

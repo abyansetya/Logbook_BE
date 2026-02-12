@@ -95,6 +95,12 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [MitraController::class, 'destroy']);
             Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
         });
+
+        // 🛡️ Admin only actions
+        Route::middleware('role:Admin')->group(function () {
+            Route::put('/{id}/approve', [MitraController::class, 'approve']);
+            Route::put('/{id}/reject', [MitraController::class, 'reject']);
+        });
     });
 
     Route::prefix('unit')->middleware('auth:sanctum')->group(function () {

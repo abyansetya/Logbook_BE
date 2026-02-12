@@ -30,6 +30,18 @@ class MitraController extends Controller
                 $query->where('klasifikasi_mitra_id', $klasifikasiId);
             }
 
+            // Status filter (Default to approved if not specified, or show all if 'all')
+            if ($request->has('status') && $request->query('status') !== 'all') {
+                 $status = $request->query('status');
+                 if ($status === 'approved') {
+                     $query->where(function($q) {
+                         $q->where('status', 'approved')->orWhereNull('status');
+                     });
+                 } else {
+                     $query->where('status', $status);
+                 }
+            }
+
             // Pagination (default 10)
             $perPage = $request->input('per_page', 10);
             $mitras = $query->latest()->paginate($perPage);
@@ -59,11 +71,15 @@ class MitraController extends Controller
         ]);
 
         try {
-            $mitra = Mitra::create($request->all());
+            // Default status 'pending'
+            $data = $request->all();
+            $data['status'] = 'pending'; 
+
+            $mitra = Mitra::create($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mitra berhasil ditambahkan',
+                'message' => 'Mitra berhasil ditambahkan dan menunggu persetujuan',
                 'data' => $mitra
             ], 201);
         } catch (\Exception $e) {
@@ -137,6 +153,56 @@ class MitraController extends Controller
                 'message' => 'Gagal menghapus mitra',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function approve($id)
+    {
+        try {
+            $mitra = Mitra::find($id);
+
+            if (!$mitra) {
+                return response()->json(['message' => 'Mitra not found'], 404);
+            }
+
+            $mitra->status = 'approved';
+            $mitra->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mitra approved successfully',
+                'data' => $mitra
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Approve Mitra Error: " . $e->getMessage());
+            return response()->json(['message' => 'Failed to approve mitra'], 500);
+        }
+    }
+
+    public function reject($id)
+    {
+        try {
+            $mitra = Mitra::find($id);
+
+            if (!$mitra) {
+                return response()->json(['message' => 'Mitra not found'], 404);
+            }
+
+            // Option 1: Delete completely
+            // $mitra->delete(); 
+            
+            // Option 2: Set status to rejected (better for history)
+            $mitra->status = 'rejected';
+            $mitra->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mitra rejected successfully',
+                'data' => $mitra
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Reject Mitra Error: " . $e->getMessage());
+            return response()->json(['message' => 'Failed to reject mitra'], 500);
         }
     }
 

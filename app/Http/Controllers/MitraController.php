@@ -71,15 +71,21 @@ class MitraController extends Controller
         ]);
 
         try {
-            // Default status 'pending'
+            // Set status based on user role
             $data = $request->all();
-            $data['status'] = 'pending'; 
+            if ($request->user() && $request->user()->hasRole('Admin')) {
+                $data['status'] = 'approved';
+                $message = 'Mitra berhasil ditambahkan';
+            } else {
+                $data['status'] = 'pending';
+                $message = 'Mitra berhasil ditambahkan dan menunggu persetujuan';
+            }
 
             $mitra = Mitra::create($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mitra berhasil ditambahkan dan menunggu persetujuan',
+                'message' => $message,
                 'data' => $mitra
             ], 201);
         } catch (\Exception $e) {
@@ -188,21 +194,15 @@ class MitraController extends Controller
                 return response()->json(['message' => 'Mitra not found'], 404);
             }
 
-            // Option 1: Delete completely
-            // $mitra->delete(); 
-            
-            // Option 2: Set status to rejected (better for history)
-            $mitra->status = 'rejected';
-            $mitra->save();
+            $mitra->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mitra rejected successfully',
-                'data' => $mitra
+                'message' => 'Mitra berhasil ditolak dan dihapus'
             ]);
         } catch (\Exception $e) {
             Log::error("Reject Mitra Error: " . $e->getMessage());
-            return response()->json(['message' => 'Failed to reject mitra'], 500);
+            return response()->json(['message' => 'Gagal menolak mitra'], 500);
         }
     }
 
@@ -250,14 +250,21 @@ class MitraController extends Controller
         ]);
 
         try {
+            $status = ($request->user() && $request->user()->hasRole('Admin')) ? 'approved' : 'pending';
+
             $mitra = Mitra::create([
                 'nama' => $request->input('nama'),
                 'klasifikasi_mitra_id' => 16,
+                'status' => $status
             ]);
+
+            $message = ($status === 'approved') 
+                ? 'Mitra berhasil ditambahkan' 
+                : 'Mitra berhasil ditambahkan dan menunggu persetujuan';
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mitra berhasil ditambahkan',
+                'message' => $message,
                 'data' => $mitra
             ], 201);
         } catch (\Exception $e) {

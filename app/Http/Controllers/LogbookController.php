@@ -284,8 +284,18 @@ class LogbookController extends Controller
     {
         DB::beginTransaction();
         try {
-            $dokumen = Dokumen::findOrFail($id);
+            $dokumen = Dokumen::with('status')->findOrFail($id);
             
+            // Pengecekan status Terbit: Hanya Admin yang boleh edit
+            if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
+                if (!$request->user()->hasRole('Admin')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit'
+                    ], 403);
+                }
+            }
+
             // Validasi menggunakan Request yang sama dengan Add
             $validated = $request->validated();
 

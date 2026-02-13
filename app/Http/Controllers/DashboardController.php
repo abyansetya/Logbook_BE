@@ -43,29 +43,42 @@ class DashboardController
                     ];
                 });
 
-            // 3. Data Chart Dinamis (6 Bulan Terakhir)
+            // 3. Data Chart: Jenis Dokumen per Tahun
+            $statusFilter = $request->query('status'); // Bisa berupa array ID atau 'all'
+            
+            $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
+                ->selectRaw('YEAR(tanggal_dokumen) as year')
+                ->distinct()
+                ->orderBy('year', 'asc')
+                ->pluck('year');
+
             $chartData = [];
-            for ($i = 5; $i >= 0; $i--) {
-                $month = Carbon::now()->subMonths($i);
-                
-                $monthlyCounts = Dokumen::whereMonth('created_at', $month->month)
-                    ->whereYear('created_at', $month->year)
-                    ->select('status_id', DB::raw('count(*) as total'))
-                    ->groupBy('status_id')
-                    ->pluck('total', 'status_id');
+            foreach ($availableYears as $year) {
+                // Query dasar untuk tahun ini
+                $yearQuery = Dokumen::whereYear('tanggal_dokumen', $year);
 
-                // Inisialisasi data bulan
-                $dataEntry = [
-                    'month' => $month->translatedFormat('M'),
-                ];
-
-                // Loop SEMUA status dari database untuk mengisi key secara dinamis
-                foreach ($allStatuses as $status) {
-                    // Gunakan nama status sebagai Key (Contoh: "Inisiasi & Proses" => 5)
-                    $dataEntry[$status->nama] = $monthlyCounts[$status->id] ?? 0;
+                // Terapkan filter status jika ada
+                if ($statusFilter && $statusFilter !== 'all') {
+                    if (is_array($statusFilter)) {
+                        $yearQuery->whereIn('status_id', $statusFilter);
+                    } else {
+                        // Jika dalam format comma-separated string
+                        $ids = explode(',', $statusFilter);
+                        $yearQuery->whereIn('status_id', $ids);
+                    }
                 }
 
-                $chartData[] = $dataEntry;
+                $countsByType = (clone $yearQuery)
+                    ->select('jenis_dokumen_id', DB::raw('count(*) as total'))
+                    ->groupBy('jenis_dokumen_id')
+                    ->pluck('total', 'jenis_dokumen_id');
+
+                $chartData[] = [
+                    'year' => (string)$year,
+                    'MoU' => $countsByType[1] ?? 0,
+                    'MoA' => $countsByType[2] ?? 0,
+                    'IA' => $countsByType[3] ?? 0,
+                ];
             }
 
             // Ambil tahun yang tersedia
@@ -85,7 +98,7 @@ class DashboardController
                     ],
                     'document_status' => $documentStatus,
                     'chart_data' => $chartData,
-                    'all_status_names' => $allStatuses->pluck('nama'), // Kirim daftar nama status ke frontend
+                    'statuses' => $allStatuses, // Kirim daftar status lengkap ke frontend
                     'available_years' => $availableYears,
                     'stats_periodic' => [
                         'mitra_bulan_ini' => Mitra::whereMonth('created_at', Carbon::now()->month)->count(),

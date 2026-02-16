@@ -432,8 +432,8 @@ class LogbookController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
 
             // Set Header
-            $headers = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Status', 'Kriteria Mitra'];
-            $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+            $headers = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
+            $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
             foreach ($headers as $index => $header) {
                 $sheet->setCellValue($columnLetters[$index] . '1', $header);
@@ -479,22 +479,19 @@ class LogbookController extends Controller
                     if ($dokumenEndRow > $dokumenStartRow) {
                         $sheet->mergeCells("C{$dokumenStartRow}:C{$dokumenEndRow}"); // Judul
                         $sheet->mergeCells("G{$dokumenStartRow}:G{$dokumenEndRow}"); // Nomor Dokumen
-                        $sheet->mergeCells("H{$dokumenStartRow}:H{$dokumenEndRow}"); // Status
+                        $sheet->mergeCells("H{$dokumenStartRow}:H{$dokumenEndRow}"); // Nomor Mitra
+                        $sheet->mergeCells("I{$dokumenStartRow}:I{$dokumenEndRow}"); // Status
                     }
 
                     $sheet->setCellValue('C' . $dokumenStartRow, $dokumen->judul_dokumen);
-
-                    $nomorDokumen = [];
-                    if ($dokumen->nomor_dokumen_undip) {
-                        $nomorDokumen[] = $dokumen->nomor_dokumen_undip;
-                    }
-                    if ($dokumen->nomor_dokumen_mitra) {
-                        $nomorDokumen[] = $dokumen->nomor_dokumen_mitra;
-                    }
-                    $sheet->setCellValue('G' . $dokumenStartRow, implode("\n", $nomorDokumen));
+                    $sheet->setCellValue('G' . $dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
+                    $sheet->setCellValue('H' . $dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
+                    
+                    // Wrap text for document numbers in case they are long
                     $sheet->getStyle('G' . $dokumenStartRow)->getAlignment()->setWrapText(true);
+                    $sheet->getStyle('H' . $dokumenStartRow)->getAlignment()->setWrapText(true);
 
-                    $sheet->setCellValue('H' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
+                    $sheet->setCellValue('I' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
                 }
 
                 $mitraEndRow = $row - 1;
@@ -503,7 +500,7 @@ class LogbookController extends Controller
                 if ($mitraEndRow > $mitraStartRow) {
                     $sheet->mergeCells("A{$mitraStartRow}:A{$mitraEndRow}"); // No
                     $sheet->mergeCells("B{$mitraStartRow}:B{$mitraEndRow}"); // Nama Mitra
-                    $sheet->mergeCells("I{$mitraStartRow}:I{$mitraEndRow}"); // Kriteria Mitra
+                    $sheet->mergeCells("J{$mitraStartRow}:J{$mitraEndRow}"); // Kriteria Mitra
                 }
 
                 $sheet->setCellValue('A' . $mitraStartRow, $no++);
@@ -514,7 +511,7 @@ class LogbookController extends Controller
                 if ($docs->first()->mitra && $docs->first()->mitra->klasifikasiMitra) {
                     $kriteria = $docs->first()->mitra->klasifikasiMitra->nama;
                 }
-                $sheet->setCellValue('I' . $mitraStartRow, $kriteria);
+                $sheet->setCellValue('J' . $mitraStartRow, $kriteria);
             }
 
             // Styling Borders
@@ -528,7 +525,7 @@ class LogbookController extends Controller
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP,
                 ],
             ];
-            $sheet->getStyle('A1:I' . ($row - 1))->applyFromArray($styleArray);
+            $sheet->getStyle('A1:J' . ($row - 1))->applyFromArray($styleArray);
 
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);

@@ -62,9 +62,11 @@
             'contact_person' => ['nullable', 'string', 'max:255'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
-            'draft_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
-            'final_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'draft_dokumen' => $this->hasFile('draft_dokumen') ? ['file', 'mimes:pdf', 'max:2048'] : ['nullable', 'string'],
+            'final_dokumen' => $this->hasFile('final_dokumen') ? ['file', 'mimes:pdf', 'max:2048'] : ['nullable', 'string'],
         ];
+
+
     }
  
      /**

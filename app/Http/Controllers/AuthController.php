@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Handles user authentication including registration, login, logout, and token management.
+ */
 class AuthController extends Controller
 {
     /**
@@ -22,7 +25,11 @@ class AuthController extends Controller
     private const TOKEN_EXPIRATION_MINUTES = 60 * 24;
 
     /**
-     * Register a new user
+     * Register a new user in the system.
+     *
+     * @param RegisterRequest $request Validated registration data.
+     * @return JsonResponse Response containing the new user data and authentication token.
+     * @throws \RuntimeException If the default viewer role is missing.
      */
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -93,7 +100,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user
+     * Authenticate a user and issue a new API token.
+     *
+     * @param LoginRequest $request Validated login credentials.
+     * @return JsonResponse Response containing user data and authentication token or error message.
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -138,7 +148,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user (revoke current token)
+     * Revoke the current authenticated user's access token.
+     *
+     * @param Request $request
+     * @return JsonResponse Success or failure message.
      */
     public function logout(Request $request): JsonResponse
     {
@@ -162,7 +175,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout from all devices (revoke all tokens)
+     * Revoke all access tokens for the authenticated user across all devices.
+     *
+     * @param Request $request
+     * @return JsonResponse Success message with count of revoked tokens.
      */
     public function logoutAll(Request $request): JsonResponse
     {
@@ -195,7 +211,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Get current authenticated user
+     * Get the profile data for the currently authenticated user.
+     *
+     * @param Request $request
+     * @return JsonResponse Current user data including roles.
      */
     public function me(Request $request): JsonResponse
     {
@@ -216,7 +235,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Refresh token (get new token)
+     * Revoke the current token and issue a fresh one with a new expiration date.
+     *
+     * @param Request $request
+     * @return JsonResponse New authentication token.
      */
     public function refresh(Request $request): JsonResponse
     {
@@ -254,7 +276,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Format user data for response
+     * Format the user object for a consistent API response.
+     *
+     * @param User $user The user model to format.
+     * @return array Formatted user data.
      */
     private function formatUserResponse(User $user): array
     {

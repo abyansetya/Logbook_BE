@@ -12,10 +12,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Provides static/helper data for form selections and filters.
+ */
 class HelperController extends Controller
 {
     /**
-     * Mengambil semua daftar status dari database
+     * Retrieve all available document status categories.
+     *
+     * @return JsonResponse List of statuses.
      */
     public function getStatus(): JsonResponse
     {
@@ -43,9 +48,11 @@ class HelperController extends Controller
     }
 
     /**
-     * Mengambil semua daftar klasifikasi mitra dari database
+     * Retrieve all available partner classifications.
+     *
+     * @return JsonResponse List of partner classifications.
      */
-    public function getKlasifikasi(): JsonResponse
+    public function getKlasifikasiMitra(): JsonResponse
     {
         try {
             // Gunakan cache selama 24 jam (86400 detik)
@@ -121,9 +128,11 @@ class HelperController extends Controller
     }
     
     /**
-     * Mengambil semua daftar unit dari database
+     * Retrieve all available document types.
+     *
+     * @return JsonResponse List of document types.
      */
-    public function getUnit(): JsonResponse
+    public function getJenisDokumen(): JsonResponse
     {
         try {
             $unit = Cache::remember('helper_units', 86400, function () {

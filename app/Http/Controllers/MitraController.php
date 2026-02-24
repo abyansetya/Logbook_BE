@@ -7,8 +7,17 @@ use App\Models\Mitra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Manages partner (mitra) data, including registration, approval, and classification.
+ */
 class MitraController extends Controller
 {
+    /**
+     * List all partners with filtering, search, and pagination.
+     *
+     * @param Request $request Filter parameters (q, klasifikasi, status, per_page).
+     * @return JsonResponse Paginated list of partners.
+     */
     public function index(Request $request)
     {
         try {
@@ -61,6 +70,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Register a new partner. Status is set to 'approved' for Admins, 'pending' otherwise.
+     *
+     * @param Request $request Partner details.
+     * @return JsonResponse Created partner data.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -98,6 +113,13 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Update an existing partner's information.
+     *
+     * @param Request $request Updated partner details.
+     * @param int|string $id Partner ID.
+     * @return JsonResponse Updated partner data.
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -134,6 +156,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Remove a partner from the system.
+     *
+     * @param int|string $id Partner ID.
+     * @return JsonResponse Success or failure message.
+     */
     public function destroy($id)
     {
         try {
@@ -162,6 +190,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Approve a pending partner registration.
+     *
+     * @param int|string $id Partner ID.
+     * @return JsonResponse Updated partner status.
+     */
     public function approve($id)
     {
         try {
@@ -185,6 +219,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Reject and delete a pending partner registration.
+     *
+     * @param int|string $id Partner ID.
+     * @return JsonResponse Success message.
+     */
     public function reject($id)
     {
         try {
@@ -206,6 +246,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Search for partners by name for autocomplete or selection.
+     *
+     * @param Request $request Search query 'q'.
+     * @return JsonResponse List of matching partners.
+     */
      public function searchMitra(Request $request) // Gunakan Request, bukan $q
     {
         try {
@@ -243,6 +289,12 @@ class MitraController extends Controller
         }
     }
 
+    /**
+     * Fast-track partner registration with a default classification.
+     *
+     * @param Request $request Partner name.
+     * @return JsonResponse Created partner data.
+     */
     public function addMitraWithoutClass(Request $request)
     {
         $request->validate([

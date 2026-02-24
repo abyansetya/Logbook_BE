@@ -11,8 +11,17 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Provides aggregated statistical data and chart information for the application dashboard.
+ */
 class DashboardController 
 {
+    /**
+     * Retrieve global statistics, status distribution, and document trends for the dashboard.
+     *
+     * @param \Illuminate\Http\Request $request Includes filter parameters like 'tahun' and 'status'.
+     * @return JsonResponse Structured dashboard stats including totals, chart data, and status counts.
+     */
     public function getDashboardStats(\Illuminate\Http\Request $request): JsonResponse
     {
         try {

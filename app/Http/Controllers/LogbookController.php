@@ -19,8 +19,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Manages logbook documents and activity logs, including CRUD operations and data export.
+ */
 class LogbookController extends Controller
 {
+    /**
+     * List documents with filtering and search capabilities.
+     *
+     * @param Request $request Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
+     * @return JsonResponse Paginated list of documents.
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -74,6 +83,12 @@ class LogbookController extends Controller
         }
     }
 
+    /**
+     * Show detailed information for a single document, including its activity logs.
+     *
+     * @param int|string $id The document ID.
+     * @return JsonResponse Document details with related logs and users.
+     */
     public function showByDokumen($id): JsonResponse
     {
         try {
@@ -97,6 +112,12 @@ class LogbookController extends Controller
         }
     }
 
+    /**
+     * Create a new document entry with optional draft file upload.
+     *
+     * @param addDokumenRequest $request Validated document data.
+     * @return JsonResponse Created document resource.
+     */
     public function addDokumen(addDokumenRequest $request): JsonResponse
     {
         // Gunakan DB::beginTransaction() di sini
@@ -147,6 +168,12 @@ class LogbookController extends Controller
         }
     }
 
+    /**
+     * Add a new activity log entry to a document.
+     *
+     * @param addLogRequest $request Validated log data.
+     * @return JsonResponse Created log entry.
+     */
     public function addLog(addLogRequest $request):JsonResponse
     {
         DB::beginTransaction();
@@ -193,6 +220,12 @@ class LogbookController extends Controller
     }
 
 
+    /**
+     * Search for documents by title for completion or quick navigation.
+     *
+     * @param Request $request Search query 'q'.
+     * @return JsonResponse List of matching document resources.
+     */
     public function searchDokumen(Request $request): JsonResponse
     {
         try {
@@ -223,6 +256,13 @@ class LogbookController extends Controller
         }
     }
 
+    /**
+     * Update an existing activity log entry.
+     *
+     * @param updateLogRequest $request Validated updated log data.
+     * @param int|string $id The log ID.
+     * @return JsonResponse Updated log entry.
+     */
     public function updateLog(updateLogRequest $request, $id): JsonResponse
     {
         // 1. Mulai Transaksi agar data konsisten (semua berhasil atau semua gagal)
@@ -260,6 +300,12 @@ class LogbookController extends Controller
         }
     }
 
+    /**
+     * Delete an activity log entry.
+     *
+     * @param int|string $id The log ID.
+     * @return JsonResponse Success or failure message.
+     */
     public function deleteLog($id): JsonResponse
     {
         try{
@@ -280,6 +326,13 @@ class LogbookController extends Controller
     }
 
 
+    /**
+     * Update document details and/or upload draft/final files.
+     *
+     * @param editDokumenRequest $request Validated document data.
+     * @param int|string $id The document ID.
+     * @return JsonResponse Updated document resource.
+     */
     public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
     {
         DB::beginTransaction();
@@ -367,6 +420,12 @@ class LogbookController extends Controller
     }
 
     // hapus dokumen by id
+    /**
+     * Permanently delete a document and its associated records.
+     *
+     * @param int|string $id The document ID.
+     * @return JsonResponse Success or failure message.
+     */
     public function deleteDokumen($id): JsonResponse
     {
         try {
@@ -384,6 +443,12 @@ class LogbookController extends Controller
             ], 500);
         }
     }
+    /**
+     * Export the filtered logbook data to an Excel spreadsheet.
+     *
+     * @param Request $request Filter parameters (same as index).
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse Streamed Excel file download.
+     */
     public function export(Request $request)
     {
         try {

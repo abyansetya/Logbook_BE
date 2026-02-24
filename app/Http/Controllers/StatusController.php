@@ -7,8 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Manages document status categories (e.g., Draft, Terbit, Batal).
+ */
 class StatusController extends Controller
 {
+    /**
+     * List all available document statuses with search and pagination.
+     *
+     * @param Request $request Filter parameters (q, per_page).
+     * @return JsonResponse Paginated list of statuses.
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -46,6 +55,12 @@ class StatusController extends Controller
         }
     }
 
+    /**
+     * Create a new document status category.
+     *
+     * @param Request $request Status details (nama).
+     * @return JsonResponse Created status data.
+     */
     public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
@@ -81,6 +96,13 @@ class StatusController extends Controller
         }
     }
 
+    /**
+     * Update an existing document status category.
+     *
+     * @param Request $request Updated status details.
+     * @param int|string $id Status ID.
+     * @return JsonResponse Updated status data.
+     */
     public function update(Request $request, $id): JsonResponse
     {
         DB::beginTransaction();
@@ -118,6 +140,12 @@ class StatusController extends Controller
         }
     }
 
+    /**
+     * Remove a status category from the system.
+     *
+     * @param int|string $id Status ID.
+     * @return JsonResponse Success or failure message.
+     */
     public function destroy($id): JsonResponse
     {
         try {

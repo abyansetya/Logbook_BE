@@ -12,10 +12,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Manages administrative user tasks, specifically role management and account deletion.
+ */
 class UserController extends Controller
 {
     /**
-     * Get all users with their roles
+     * List all users with their assigned roles.
+     *
+     * @param Request $request
+     * @return JsonResponse List of users with IDs, names, emails, and roles.
      */
     public function index(Request $request)
     {
@@ -42,7 +48,11 @@ class UserController extends Controller
     }
 
     /**
-     * Update user role
+     * Change a user's role and invalidate their profile cache.
+     *
+     * @param Request $request Validated role name.
+     * @param int|string $id Target user ID.
+     * @return JsonResponse Updated user and roles.
      */
     public function updateRole(Request $request, $id)
     {
@@ -96,7 +106,11 @@ class UserController extends Controller
         }
     }
     /**
-     * Delete user
+     * Permanently remove a user account and detach their roles.
+     *
+     * @param Request $request Source admin request.
+     * @param int|string $id Target user ID.
+     * @return JsonResponse Success or failure message.
      */
     public function destroy(Request $request, $id)
     {
@@ -144,6 +158,12 @@ class UserController extends Controller
     }
 
     // Search User
+    /**
+     * Search for users by name for selection or administration.
+     *
+     * @param Request $request Search query 'q'.
+     * @return JsonResponse List of matching user resources.
+     */
     public function searchUser(Request $request): JsonResponse
     {
         try {

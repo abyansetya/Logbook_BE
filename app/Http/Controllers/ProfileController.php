@@ -10,8 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Handles user profile updates and security settings like password changes.
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Update the authenticated user's profile information.
+     *
+     * @param ProfileRequest $request Validated profile data (nama, email, nim_nip).
+     * @return JsonResponse Updated user profile data and success message.
+     */
     public function updateProfile(ProfileRequest $request)
     {
         DB::beginTransaction();
@@ -60,6 +69,12 @@ class ProfileController extends Controller
         }
     }
 
+    /**
+     * Change the authenticated user's password.
+     *
+     * @param ChangePasswordRequest $request Validated password confirmation.
+     * @return JsonResponse Success message.
+     */
     public function changePassword(ChangePasswordRequest $request)
     {
         $user = $request->user();

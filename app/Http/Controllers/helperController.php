@@ -52,7 +52,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of partner classifications.
      */
-    public function getKlasifikasiMitra(): JsonResponse
+    public function getKlasifikasi(): JsonResponse
     {
         try {
             // Gunakan cache selama 24 jam (86400 detik)
@@ -75,6 +75,12 @@ class HelperController extends Controller
         }
     }
 
+    /**
+     * Log a user activity to the database.
+     *
+     * @param Request $request Activity details (user_id, action, description, type).
+     * @return JsonResponse Created activity log data.
+     */
     public function saveActivities(Request $request): JsonResponse
     {
 
@@ -103,6 +109,11 @@ class HelperController extends Controller
         }
     }
 
+    /**
+     * Retrieve the most recent activity logs.
+     *
+     * @return JsonResponse List of the 5 most recent activities with user data.
+     */
     public function getRecentActivities(): JsonResponse
     {
         try {
@@ -128,11 +139,11 @@ class HelperController extends Controller
     }
     
     /**
-     * Retrieve all available document types.
+     * Retrieve all available organizational units.
      *
-     * @return JsonResponse List of document types.
+     * @return JsonResponse List of units.
      */
-    public function getJenisDokumen(): JsonResponse
+    public function getUnit(): JsonResponse
     {
         try {
             $unit = Cache::remember('helper_units', 86400, function () {

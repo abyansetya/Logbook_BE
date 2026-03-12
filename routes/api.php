@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\HelperController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\MitraController;
@@ -20,7 +21,7 @@ Route::prefix('v1')->group(function () {
 
         // 🔓 Public routes (rate limited)
         Route::middleware('throttle:auth')->group(function () {
-            Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+            Route::post('/register', [RegisterController::class, 'register'])->name('auth.register');
             Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
         });
 
@@ -92,7 +93,6 @@ Route::prefix('v1')->group(function () {
         Route::middleware('role:Admin,Operator')->group(function () {
             Route::post('/', [MitraController::class, 'store']);
             Route::put('/{id}', [MitraController::class, 'update']);
-            Route::delete('/{id}', [MitraController::class, 'destroy']);
             Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
         });
 
@@ -100,6 +100,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('role:Admin')->group(function () {
             Route::put('/{id}/approve', [MitraController::class, 'approve']);
             Route::put('/{id}/reject', [MitraController::class, 'reject']);
+            Route::delete('/{id}', [MitraController::class, 'destroy']);
         });
     });
 

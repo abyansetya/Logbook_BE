@@ -67,7 +67,7 @@ class LogbookController extends Controller
                 $query->whereYear('tanggal_dokumen', $tahun);
             }
 
-            $perPage = $request->input('per_page', 10);
+            $perPage = min((int)$request->input('per_page', 10), 100);
             $order = $request->query('order', 'desc');
             if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
 
@@ -79,7 +79,7 @@ class LogbookController extends Controller
                 'data'    => DokumenResource::collection($dokumen)->response()->getData(true)
             ], 200);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'], 500);
         }
     }
 
@@ -139,7 +139,7 @@ class LogbookController extends Controller
 
             if ($request->hasFile('draft_dokumen')) {
                 $file = $request->file('draft_dokumen');
-                $filename = time() . '_draft_' . $file->getClientOriginalName();
+                $filename = $file->hashName();
                 $path = $file->storeAs('dokumen/drafts', $filename, 'public');
                 $dokumen->update(['draft_dokumen' => $path]);
             }
@@ -190,7 +190,7 @@ class LogbookController extends Controller
             }
 
             $log= Log::create([
-                'user_id' => $validated['user_id'],
+                'user_id' => $request->user()->id,
                 'mitra_id' => $validated['mitra_id'],
                 'dokumen_id' => $validated['dokumen_id'],
                 'unit_id' => $validated['unit_id'],
@@ -295,7 +295,7 @@ class LogbookController extends Controller
 
             return response()->json([
                 'success' => false, 
-                'message' => 'Gagal memperbarui log: ' . $e->getMessage()
+                'message' => 'Gagal memperbarui log: ' . (config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem')
             ], 500);
         }
     }
@@ -370,7 +370,7 @@ class LogbookController extends Controller
                     \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->draft_dokumen);
                 }
                 $file = $request->file('draft_dokumen');
-                $filename = time() . '_draft_' . $file->getClientOriginalName();
+                $filename = $file->hashName();
                 $path = $file->storeAs('dokumen/drafts', $filename, 'public');
                 $dokumen->update(['draft_dokumen' => $path]);
             } elseif ($request->has('draft_dokumen') && empty($request->input('draft_dokumen'))) {
@@ -387,7 +387,7 @@ class LogbookController extends Controller
                     \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->final_dokumen);
                 }
                 $file = $request->file('final_dokumen');
-                $filename = time() . '_final_' . $file->getClientOriginalName();
+                $filename = $file->hashName();
                 $path = $file->storeAs('dokumen/final', $filename, 'public');
                 $dokumen->update(['final_dokumen' => $path]);
             } elseif ($request->has('final_dokumen') && empty($request->input('final_dokumen'))) {
@@ -602,7 +602,7 @@ class LogbookController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal export data', 'error' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal export data', 'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'], 500);
         }
     }
 }

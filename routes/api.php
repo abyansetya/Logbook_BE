@@ -47,7 +47,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
         Route::put('/{id}/role', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update-role');
         Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
-        Route::get('/search', [\App\Http\Controllers\UserController::class, 'searchUser'])->name('users.search');
+        Route::get('/search', [\App\Http\Controllers\UserController::class, 'searchUser'])->name('users.search')->middleware('role:Admin');
     });
 
     Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {

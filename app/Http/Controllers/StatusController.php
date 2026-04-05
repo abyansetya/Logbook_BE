@@ -29,7 +29,7 @@ class StatusController extends Controller
                 $query->where('nama', 'LIKE', "%{$search}%");
             }
 
-            $perPage = $request->input('per_page', 10);
+            $perPage = min((int)$request->input('per_page', 10), 100);
             $statuses = $query->orderBy('created_at', 'asc')->paginate($perPage);
 
             return response()->json([

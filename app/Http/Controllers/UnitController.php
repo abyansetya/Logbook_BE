@@ -29,7 +29,7 @@ class UnitController extends Controller
                 $query->where('nama', 'LIKE', "%{$search}%");
             }
 
-            $perPage = $request->input('per_page', 10);
+            $perPage = min((int)$request->input('per_page', 10), 100);
             $units = $query->orderBy('nama', 'asc')->paginate($perPage);
 
             return response()->json([

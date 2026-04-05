@@ -166,6 +166,11 @@ class UserController extends Controller
      */
     public function searchUser(Request $request): JsonResponse
     {
+        // Ensure only admin can access
+        if (!$request->user()->hasRole('Admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             $query = $request->query('q');
 

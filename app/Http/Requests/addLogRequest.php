@@ -21,9 +21,8 @@ class addLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required',
-            'mitra_id' => 'required',
-            'dokumen_id' => 'required',
+            'mitra_id'   => 'required|exists:mitra,id',
+            'dokumen_id' => 'required|exists:dokumen,id',
             'unit_id'    => 'required|exists:unit,id',
             'keterangan'     => 'required|string|min:5',
             'tanggal_log'    => 'required|date',
@@ -42,6 +41,8 @@ class addLogRequest extends FormRequest
             'keterangan.min'          => 'Keterangan minimal berisi 5 karakter.',
             'unit_id.required'        => 'Unit penginput harus diisi.',
             'unit_id.exists'          => 'Unit yang dipilih tidak valid.',
+            'mitra_id.exists'         => 'Mitra yang dipilih tidak valid.',
+            'dokumen_id.exists'       => 'Dokumen yang dipilih tidak valid.',
         ];
     }
 }

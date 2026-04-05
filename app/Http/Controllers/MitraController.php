@@ -51,8 +51,8 @@ class MitraController extends Controller
                  }
             }
 
-            // Pagination (default 10)
-            $perPage = $request->input('per_page', 10);
+            // Pagination (default 10, max 100)
+            $perPage = min((int)$request->input('per_page', 10), 100);
             $mitras = $query->latest()->paginate($perPage);
 
             return response()->json([
@@ -65,7 +65,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data mitra',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -108,7 +108,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan mitra',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -139,7 +139,7 @@ class MitraController extends Controller
                 ], 404);
             }
 
-            $mitra->update($request->all());
+            $mitra->update($request->only(['nama', 'klasifikasi_mitra_id', 'alamat', 'contact_person']));
 
             return response()->json([
                 'success' => true,
@@ -151,7 +151,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui mitra',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -185,7 +185,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus mitra',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -284,7 +284,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan pada server',
-                'error' => $e->getMessage() // Munculkan ini untuk debugging
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -325,7 +325,7 @@ class MitraController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan mitra',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }

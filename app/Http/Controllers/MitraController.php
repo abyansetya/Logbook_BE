@@ -252,7 +252,7 @@ class MitraController extends Controller
      * @param Request $request Search query 'q'.
      * @return JsonResponse List of matching partners.
      */
-     public function searchMitra(Request $request) // Gunakan Request, bukan $q
+     public function search(Request $request)
     {
         try {
             // Ambil nilai dari ?q=bank
@@ -295,7 +295,7 @@ class MitraController extends Controller
      * @param Request $request Partner name.
      * @return JsonResponse Created partner data.
      */
-    public function addMitraWithoutClass(Request $request)
+    public function storeQuick(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255|unique:mitra,nama',

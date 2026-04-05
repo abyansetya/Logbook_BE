@@ -39,7 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('profile')->group(function () {
         // 🔐 Protected routes (Sanctum)
         Route::middleware('auth:sanctum')->group(function () {
-            Route::patch('/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+            Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
             Route::put('/changePassword', [ProfileController::class, 'changePassword'])->name('profile.changePassword');
         });
     });
@@ -48,11 +48,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
         Route::put('/{id}/role', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update-role');
         Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
-        Route::get('/search', [\App\Http\Controllers\UserController::class, 'searchUser'])->name('users.search')->middleware('role:Admin');
+        Route::get('/search', [\App\Http\Controllers\UserController::class, 'search'])->name('users.search')->middleware('role:Admin');
     });
 
     Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
-        Route::get('/', [DashboardController::class, 'getDashboardStats'])->name('dashboard.index');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     });
 
     Route::prefix('logbook')->middleware('auth:sanctum', 'throttle:api')->group(function () {
@@ -77,25 +77,25 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
-        Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');
-        Route::get('/getKlasifikasi', [HelperController::class, 'getKlasifikasi'])->name('helper.getKlasifikasi');
-        Route::get('/getUnit', [HelperController::class, 'getUnit'])->name('helper.getUnit');
-        Route::get('/activities', [HelperController::class, 'getRecentActivities'])->name('helper.activities');
+        Route::get('/statuses', [HelperController::class, 'statuses'])->name('helper.statuses');
+        Route::get('/klasifikasi', [HelperController::class, 'klasifikasi'])->name('helper.klasifikasi');
+        Route::get('/units', [HelperController::class, 'units'])->name('helper.units');
+        Route::get('/activities', [HelperController::class, 'recentActivities'])->name('helper.activities');
 
         Route::middleware('role:Admin,Operator')->group(function () {
-            Route::post('/save-activities', [HelperController::class, 'saveActivities'])->name('logbook.save-activities');
-        }); 
+            Route::post('/activities', [HelperController::class, 'storeActivity'])->name('helper.store-activity');
+        });
     }); 
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [MitraController::class, 'index']);
-        Route::get('/search', [MitraController::class, 'searchMitra'])->name('mitra.search');
+        Route::get('/search', [MitraController::class, 'search'])->name('mitra.search');
 
         // 🛡️ Admin & Operator actions
         Route::middleware('role:Admin,Operator')->group(function () {
             Route::post('/', [MitraController::class, 'store']);
             Route::put('/{id}', [MitraController::class, 'update']);
-            Route::post('/addMitraWithoutClass', [MitraController::class, 'addMitraWithoutClass'])->name('MitraWithoutClass.add');
+            Route::post('/quick', [MitraController::class, 'storeQuick'])->name('mitra.store-quick');
         });
 
         // 🛡️ Admin only actions

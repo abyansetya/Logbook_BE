@@ -164,7 +164,7 @@ class UserController extends Controller
      * @param Request $request Search query 'q'.
      * @return JsonResponse List of matching user resources.
      */
-    public function searchUser(Request $request): JsonResponse
+    public function search(Request $request): JsonResponse
     {
         // Ensure only admin can access
         if (!$request->user()->hasRole('Admin')) {

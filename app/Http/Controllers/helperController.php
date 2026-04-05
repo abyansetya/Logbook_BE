@@ -22,7 +22,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of statuses.
      */
-    public function getStatus(): JsonResponse
+    public function statuses(): JsonResponse
     {
         try {
             // Gunakan cache selama 24 jam (86400 detik)
@@ -52,7 +52,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of partner classifications.
      */
-    public function getKlasifikasi(): JsonResponse
+    public function klasifikasi(): JsonResponse
     {
         try {
             // Gunakan cache selama 24 jam (86400 detik)
@@ -81,7 +81,7 @@ class HelperController extends Controller
      * @param Request $request Activity details (user_id, action, description, type).
      * @return JsonResponse Created activity log data.
      */
-    public function saveActivities(Request $request): JsonResponse
+    public function storeActivity(Request $request): JsonResponse
     {
 
         DB::beginTransaction();
@@ -114,7 +114,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of the 5 most recent activities with user data.
      */
-    public function getRecentActivities(): JsonResponse
+    public function recentActivities(): JsonResponse
     {
         try {
             // Mengambil 5 aktivitas terbaru dengan relasi user
@@ -143,7 +143,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of units.
      */
-    public function getUnit(): JsonResponse
+    public function units(): JsonResponse
     {
         try {
             $unit = Cache::remember('helper_units', 86400, function () {

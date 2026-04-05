@@ -21,7 +21,7 @@ class ProfileController extends Controller
      * @param ProfileRequest $request Validated profile data (nama, email, nim_nip).
      * @return JsonResponse Updated user profile data and success message.
      */
-    public function updateProfile(ProfileRequest $request)
+    public function update(ProfileRequest $request)
     {
         DB::beginTransaction();
 

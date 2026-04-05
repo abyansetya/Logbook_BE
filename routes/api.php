@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\HelperController;
+use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ProfileController;
@@ -55,24 +56,25 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('logbook')->middleware('auth:sanctum', 'throttle:api')->group(function () {
-        Route::get('/', [LogbookController::class, 'index'])->name('logbook.index');
-        Route::get('/dokumen/{id}', [LogbookController::class, 'showByDokumen'])->name('logbook.show-dokumen');
-        Route::get('/search-dokumen', [LogbookController::class, 'searchDokumen'])->name('logbook.search-dokumen');
-        Route::get('/export', [LogbookController::class, 'export'])->name('logbook.export');
+        // 📄 Dokumen routes
+        Route::get('/', [DokumenController::class, 'index'])->name('logbook.index');
+        Route::get('/dokumen/{id}', [DokumenController::class, 'show'])->name('logbook.show-dokumen');
+        Route::get('/search-dokumen', [DokumenController::class, 'search'])->name('logbook.search-dokumen');
+        Route::get('/export', [DokumenController::class, 'export'])->name('logbook.export');
 
         // 🛡️ Admin & Operator actions
         Route::middleware('role:Admin,Operator')->group(function () {
-            Route::post('/dokumen', [LogbookController::class, 'addDokumen'])->name('logbook.add-dokumen');
-            Route::put('/edit-dokumen/{id}', [LogbookController::class, 'updateDokumen']);
-            Route::delete('/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
-            Route::post('/add-log', [LogbookController::class, 'addLog']);
-            Route::put('/edit-log/{id}', [LogbookController::class, 'updateLog']);
-            Route::delete('/delete-log/{id}', [LogbookController::class, 'deleteLog']);
+            // Dokumen
+            Route::post('/dokumen', [DokumenController::class, 'store'])->name('logbook.add-dokumen');
+            Route::put('/edit-dokumen/{id}', [DokumenController::class, 'update'])->name('logbook.update-dokumen');
+            Route::delete('/delete-dokumen/{id}', [DokumenController::class, 'destroy'])->name('logbook.delete-dokumen');
+
+            // 📝 Log (activity) routes
+            Route::post('/add-log', [LogbookController::class, 'store'])->name('logbook.add-log');
+            Route::put('/edit-log/{id}', [LogbookController::class, 'update'])->name('logbook.update-log');
+            Route::delete('/delete-log/{id}', [LogbookController::class, 'destroy'])->name('logbook.delete-log');
         });
     });
-
-    // Pindahkan ke luar grup untuk testing
-    //Route::delete('/logbook/delete-dokumen/{id}', [LogbookController::class, 'deleteDokumen']);
 
     Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
         Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');

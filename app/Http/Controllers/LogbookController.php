@@ -3,184 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\addDokumenRequest;
 use App\Http\Requests\addLogRequest;
-use App\Http\Requests\editDokumenRequest; // Added this line
 use App\Http\Requests\updateLogRequest;
-use App\Http\Resources\DokumenResource;
-use App\Http\Resources\MitraResource;
 use App\Models\Dokumen;
 use App\Models\Log;
-use App\Models\Mitra;
-use GrahamCampbell\ResultType\Success;
-use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Manages logbook documents and activity logs, including CRUD operations and data export.
+ * Manages activity log entries (logbook) within a document.
  */
 class LogbookController extends Controller
 {
-    /**
-     * List documents with filtering and search capabilities.
-     *
-     * @param Request $request Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
-     * @return JsonResponse Paginated list of documents.
-     */
-    public function index(Request $request): JsonResponse
-    {
-        try {
-            $query = Dokumen::with([
-                'mitra',         
-                'jenisDokumen',  
-                'status'         
-            ]);
-
-            // Search logic
-            if ($request->has('q')) {
-                $search = $request->query('q');
-                $query->where(function($q) use ($search) {
-                    $q->where('judul_dokumen', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
-                });
-            }
-
-            // Status filter
-            if ($request->has('status') && $request->query('status') !== 'all') {
-                $statusId = $request->query('status');
-                $query->where('status_id', $statusId);
-            }
-
-            // Jenis Dokumen filter
-            if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
-                $jenisId = $request->query('jenis_dokumen');
-                $query->where('jenis_dokumen_id', $jenisId);
-            }
-
-            // Tahun filter
-            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
-                $tahun = $request->query('tahun');
-                $query->whereYear('tanggal_dokumen', $tahun);
-            }
-
-            $perPage = min((int)$request->input('per_page', 10), 100);
-            $order = $request->query('order', 'desc');
-            if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
-
-            $dokumen = $query->orderBy('tanggal_masuk', $order)->paginate($perPage);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Daftar dokumen berhasil diambil',
-                'data'    => DokumenResource::collection($dokumen)->response()->getData(true)
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'], 500);
-        }
-    }
-
-    /**
-     * Show detailed information for a single document, including its activity logs.
-     *
-     * @param int|string $id The document ID.
-     * @return JsonResponse Document details with related logs and users.
-     */
-    public function showByDokumen($id): JsonResponse
-    {
-        try {
-            $dokumen = Dokumen::with([
-                // Menambahkan fungsi penutup untuk mengurutkan log
-                'logs' => function ($query) {
-                    $query->orderBy('tanggal_log', 'asc'); // 'desc' untuk terbaru di atas
-                },
-                'logs.user', 
-                'jenisDokumen',
-                'status'
-            ])->findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Log aktivitas berhasil dimuat',
-                'data'    => new DokumenResource($dokumen)
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
-        }
-    }
-
-    /**
-     * Create a new document entry with optional draft file upload.
-     *
-     * @param addDokumenRequest $request Validated document data.
-     * @return JsonResponse Created document resource.
-     */
-    public function addDokumen(addDokumenRequest $request): JsonResponse
-    {
-        // Gunakan DB::beginTransaction() di sini
-        DB::beginTransaction();
-        try {
-            $validated = $request->validated();
-
-            $dokumen = Dokumen::create([
-                'mitra_id'            => $validated['mitra_id'],
-                'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
-                'status_id'           => $validated['status_id'],
-                'judul_dokumen'       => $validated['judul_dokumen'],
-                'contact_person'      => $validated['contact_person'] ?? null,
-                'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
-                'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
-                'tanggal_masuk'       => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
-                'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
-            ]);
-
-            if ($request->hasFile('draft_dokumen')) {
-                $file = $request->file('draft_dokumen');
-                $filename = $file->hashName();
-                $path = $file->storeAs('dokumen/drafts', $filename, 'public');
-                $dokumen->update(['draft_dokumen' => $path]);
-            }
-
-            // Load relasi agar DokumenResource bisa menampilkan data lengkap ke React
-            $dokumen->load(['mitra', 'jenisDokumen', 'status']);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Dokumen berhasil ditambahkan',
-                'data'    => new DokumenResource($dokumen)
-            ], 201);
-
-        } catch (\Exception $e) {
-            // PENTING: Batalkan transaksi jika ada error
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambahkan dokumen',
-                // Gunakan $e->getMessage() hanya di mode dev untuk keamanan
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
-            ], 500);
-        }
-    }
-
     /**
      * Add a new activity log entry to a document.
      *
      * @param addLogRequest $request Validated log data.
      * @return JsonResponse Created log entry.
      */
-    public function addLog(addLogRequest $request):JsonResponse
+    public function store(addLogRequest $request): JsonResponse
     {
         DB::beginTransaction();
-        try{
+        try {
             $validated = $request->validated();
 
-            // Cek status dokumen
             $dokumen = Dokumen::with('status')->findOrFail($validated['dokumen_id']);
             if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
                 return response()->json([
@@ -189,69 +37,29 @@ class LogbookController extends Controller
                 ], 422);
             }
 
-            $log= Log::create([
-                'user_id' => $request->user()->id,
-                'mitra_id' => $validated['mitra_id'],
-                'dokumen_id' => $validated['dokumen_id'],
-                'unit_id' => $validated['unit_id'],
-                'keterangan' => $validated['keterangan'],
-                'tanggal_log' => $validated['tanggal_log']
+            $log = Log::create([
+                'user_id'     => $request->user()->id,
+                'mitra_id'    => $validated['mitra_id'],
+                'dokumen_id'  => $validated['dokumen_id'],
+                'unit_id'     => $validated['unit_id'],
+                'keterangan'  => $validated['keterangan'],
+                'tanggal_log' => $validated['tanggal_log'],
             ]);
 
             DB::commit();
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Data retrieved Successfully',
-                'data' => $log
+                'success' => true,
+                'message' => 'Log aktivitas berhasil ditambahkan',
+                'data'    => $log
             ], 201);
 
-        } catch(\Exception $e)
-        {
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambahkan Log',
-                // Gunakan $e->getMessage() hanya di mode dev untuk keamanan
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
-            ], 500);
-        }
-    }
-
-
-    /**
-     * Search for documents by title for completion or quick navigation.
-     *
-     * @param Request $request Search query 'q'.
-     * @return JsonResponse List of matching document resources.
-     */
-    public function searchDokumen(Request $request): JsonResponse
-    {
-        try {
-            $query = $request->query('q');
-
-            if (empty($query)) {
-                return response()->json([
-                    'success' => true,
-                    'data' => []
-                ]);
-            }
-
-            $dokumens = Dokumen::where('judul_dokumen', 'LIKE', "%{$query}%")
-                ->limit(10)
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'data' => DokumenResource::collection($dokumens)
-            ]);
-
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan pada server',
-                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'message' => 'Gagal menambahkan log',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }
@@ -263,22 +71,18 @@ class LogbookController extends Controller
      * @param int|string $id The log ID.
      * @return JsonResponse Updated log entry.
      */
-    public function updateLog(updateLogRequest $request, $id): JsonResponse
+    public function update(updateLogRequest $request, $id): JsonResponse
     {
-        // 1. Mulai Transaksi agar data konsisten (semua berhasil atau semua gagal)
         DB::beginTransaction();
-
         try {
-            // 2. Pastikan pencarian berdasarkan ID ini terindeks (Primary Key)
             $log = Log::findOrFail($id);
 
-            // 3. Update data berdasarkan request yang sudah divalidasi
             $log->update([
                 'keterangan'  => $request->keterangan,
                 'tanggal_log' => $request->tanggal_log ?? now(),
-                'user_id'     => Auth::id(), // Menggunakan helper id() yang benar
+                'user_id'     => Auth::id(),
                 'unit_id'     => $request->unit_id,
-                'updated_at'     => now('Asia/Jakarta'),
+                'updated_at'  => now('Asia/Jakarta'),
             ]);
 
             DB::commit();
@@ -290,11 +94,9 @@ class LogbookController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            // Jika ada error, batalkan semua perubahan data
             DB::rollBack();
-
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Gagal memperbarui log: ' . (config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem')
             ], 500);
         }
@@ -306,9 +108,9 @@ class LogbookController extends Controller
      * @param int|string $id The log ID.
      * @return JsonResponse Success or failure message.
      */
-    public function deleteLog($id): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        try{
+        try {
             $log = Log::findOrFail($id);
             $log->delete();
 
@@ -316,293 +118,12 @@ class LogbookController extends Controller
                 'success' => true,
                 'message' => 'Log berhasil dihapus'
             ], 200);
-        }catch(\Exception $e)
-        {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus Log'
-            ], 500);
-        }
-    }
 
-
-    /**
-     * Update document details and/or upload draft/final files.
-     *
-     * @param editDokumenRequest $request Validated document data.
-     * @param int|string $id The document ID.
-     * @return JsonResponse Updated document resource.
-     */
-    public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
-    {
-        DB::beginTransaction();
-        try {
-            $dokumen = Dokumen::with('status')->findOrFail($id);
-            
-            // Pengecekan status Terbit: Hanya Admin yang boleh edit
-            if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
-                if (!$request->user()->hasRole('Admin')) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit'
-                    ], 403);
-                }
-            }
-
-            // Validasi menggunakan Request yang sama dengan Add
-            $validated = $request->validated();
-
-            $dokumen->update([
-                'mitra_id'            => $validated['mitra_id'],
-                'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
-                'status_id'           => $validated['status_id'],
-                'judul_dokumen'       => $validated['judul_dokumen'],
-                'contact_person'      => $validated['contact_person'] ?? null,
-                'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
-                'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
-                'tanggal_masuk'       => $validated['tanggal_masuk'],
-                'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
-            ]);
-
-            if ($request->hasFile('draft_dokumen')) {
-                // Delete old file if exists
-                if ($dokumen->draft_dokumen) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->draft_dokumen);
-                }
-                $file = $request->file('draft_dokumen');
-                $filename = $file->hashName();
-                $path = $file->storeAs('dokumen/drafts', $filename, 'public');
-                $dokumen->update(['draft_dokumen' => $path]);
-            } elseif ($request->has('draft_dokumen') && empty($request->input('draft_dokumen'))) {
-                // Explicitly cleared
-                if ($dokumen->draft_dokumen) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->draft_dokumen);
-                }
-                $dokumen->update(['draft_dokumen' => null]);
-            }
-
-            if ($request->hasFile('final_dokumen')) {
-                // Delete old file if exists
-                if ($dokumen->final_dokumen) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->final_dokumen);
-                }
-                $file = $request->file('final_dokumen');
-                $filename = $file->hashName();
-                $path = $file->storeAs('dokumen/final', $filename, 'public');
-                $dokumen->update(['final_dokumen' => $path]);
-            } elseif ($request->has('final_dokumen') && empty($request->input('final_dokumen'))) {
-                // Explicitly cleared
-                if ($dokumen->final_dokumen) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($dokumen->final_dokumen);
-                }
-                $dokumen->update(['final_dokumen' => null]);
-            }
-
-            // Load relasi agar response lengkap
-            $dokumen->load(['mitra', 'jenisDokumen', 'status']);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Dokumen berhasil diperbarui',
-                'data'    => new DokumenResource($dokumen)
-            ], 200);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui dokumen',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
-            ], 500);
-        }
-    }
-
-    // hapus dokumen by id
-    /**
-     * Permanently delete a document and its associated records.
-     *
-     * @param int|string $id The document ID.
-     * @return JsonResponse Success or failure message.
-     */
-    public function deleteDokumen($id): JsonResponse
-    {
-        try {
-            $dokumen = Dokumen::findOrFail($id);
-            $dokumen->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Dokumen berhasil dihapus'
-            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus dokumen'
+                'message' => 'Gagal menghapus log'
             ], 500);
-        }
-    }
-    /**
-     * Export the filtered logbook data to an Excel spreadsheet.
-     *
-     * @param Request $request Filter parameters (same as index).
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse Streamed Excel file download.
-     */
-    public function export(Request $request)
-    {
-        try {
-            $query = Dokumen::with(['mitra.klasifikasiMitra', 'jenisDokumen', 'status', 'logs.user']);
-
-            // Search logic (same as index)
-            if ($request->has('q')) {
-                $search = $request->query('q');
-                $query->where(function($q) use ($search) {
-                    $q->where('judul_dokumen', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
-                });
-            }
-
-            // Status filter
-            if ($request->has('status') && $request->query('status') !== 'all') {
-                $statusId = $request->query('status');
-                $query->where('status_id', $statusId);
-            }
-
-            // Jenis Dokumen filter
-            if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
-                $jenisId = $request->query('jenis_dokumen');
-                $query->where('jenis_dokumen_id', $jenisId);
-            }
-
-            // Tahun filter
-            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
-                $tahun = $request->query('tahun');
-                $query->whereYear('tanggal_dokumen', $tahun);
-            }
-
-            $perPage = $request->input('per_page', 10);
-            $order = $request->query('order', 'desc');
-            if (!in_array($order, ['asc', 'desc'])) $order = 'desc';
-
-            $dokumens = $query->orderBy('tanggal_masuk', $order)->get();
-
-            // Group by Mitra
-            $groupedData = $dokumens->groupBy(function ($item) {
-                return $item->mitra ? $item->mitra->nama : 'Tanpa Mitra';
-            });
-
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-
-            // Set Header
-            $headers = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
-            $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-
-            foreach ($headers as $index => $header) {
-                $sheet->setCellValue($columnLetters[$index] . '1', $header);
-                $sheet->getStyle($columnLetters[$index] . '1')->getFont()->setBold(true);
-                $sheet->getStyle($columnLetters[$index] . '1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00');
-                $sheet->getColumnDimension($columnLetters[$index])->setAutoSize(true);
-            }
-
-            $row = 2;
-            $no = 1;
-
-            foreach ($groupedData as $mitraName => $docs) {
-                // Sort documents within the group by tanggal_masuk
-                $docs = ($order === 'desc') 
-                    ? $docs->sortByDesc('tanggal_masuk') 
-                    : $docs->sortBy('tanggal_masuk');
-
-                // Calculate total rows for this Mitra
-                $mitraStartRow = $row;
-                
-                foreach ($docs as $dokumen) {
-                    $dokumenStartRow = $row;
-                    $logs = ($order === 'desc') 
-                        ? $dokumen->logs->sortByDesc('tanggal_log') 
-                        : $dokumen->logs->sortBy('tanggal_log');
-
-                    // If logs exist, iterate them. If not, one row for document.
-                    if ($logs->count() > 0) {
-                        foreach ($logs as $log) {
-                            $sheet->setCellValue('D' . $row, $log->tanggal_log);
-                            $sheet->setCellValue('E' . $row, $log->keterangan);
-                            $sheet->setCellValue('F' . $row, $log->contact_person);
-                            $row++;
-                        }
-                    } else {
-                        // Empty row for logs if none
-                        $row++;
-                    }
-                    
-                    $dokumenEndRow = $row - 1;
-
-                    // Merge Document Columns
-                    if ($dokumenEndRow > $dokumenStartRow) {
-                        $sheet->mergeCells("C{$dokumenStartRow}:C{$dokumenEndRow}"); // Judul
-                        $sheet->mergeCells("G{$dokumenStartRow}:G{$dokumenEndRow}"); // Nomor Dokumen
-                        $sheet->mergeCells("H{$dokumenStartRow}:H{$dokumenEndRow}"); // Nomor Mitra
-                        $sheet->mergeCells("I{$dokumenStartRow}:I{$dokumenEndRow}"); // Status
-                    }
-
-                    $sheet->setCellValue('C' . $dokumenStartRow, $dokumen->judul_dokumen);
-                    $sheet->setCellValue('G' . $dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
-                    $sheet->setCellValue('H' . $dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
-                    
-                    // Wrap text for document numbers in case they are long
-                    $sheet->getStyle('G' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-                    $sheet->getStyle('H' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-
-                    $sheet->setCellValue('I' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
-                }
-
-                $mitraEndRow = $row - 1;
-
-                // Merge Mitra Columns
-                if ($mitraEndRow > $mitraStartRow) {
-                    $sheet->mergeCells("A{$mitraStartRow}:A{$mitraEndRow}"); // No
-                    $sheet->mergeCells("B{$mitraStartRow}:B{$mitraEndRow}"); // Nama Mitra
-                    $sheet->mergeCells("J{$mitraStartRow}:J{$mitraEndRow}"); // Kriteria Mitra
-                }
-
-                $sheet->setCellValue('A' . $mitraStartRow, $no++);
-                $sheet->setCellValue('B' . $mitraStartRow, $mitraName);
-                
-                // Assuming Kriteria Mitra comes from KlasifikasiMitra relation of the first doc's mitra
-                $kriteria = '';
-                if ($docs->first()->mitra && $docs->first()->mitra->klasifikasiMitra) {
-                    $kriteria = $docs->first()->mitra->klasifikasiMitra->nama;
-                }
-                $sheet->setCellValue('J' . $mitraStartRow, $kriteria);
-            }
-
-            // Styling Borders
-            $styleArray = [
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    ],
-                ],
-                'alignment' => [
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP,
-                ],
-            ];
-            $sheet->getStyle('A1:J' . ($row - 1))->applyFromArray($styleArray);
-
-
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-            
-            return response()->streamDownload(function() use ($writer) {
-                $writer->save('php://output');
-            }, 'Logbook_' . date('Y-m-d_H-i-s') . '.xlsx', [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal export data', 'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'], 500);
         }
     }
 }

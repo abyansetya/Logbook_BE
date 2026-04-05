@@ -22,7 +22,7 @@ class DashboardController
      * @param \Illuminate\Http\Request $request Includes filter parameters like 'tahun' and 'status'.
      * @return JsonResponse Structured dashboard stats including totals, chart data, and status counts.
      */
-    public function index(\Illuminate\Http\Request $request): JsonResponse
+    public function getDashboardStats(\Illuminate\Http\Request $request): JsonResponse
     {
         try {
             // 1. Ambil SEMUA master status yang ada di database

@@ -18,7 +18,7 @@ class MitraController extends Controller
      * @param Request $request Filter parameters (q, klasifikasi, status, per_page).
      * @return JsonResponse Paginated list of partners.
      */
-    public function index(Request $request)
+    public function getMitra(Request $request)
     {
         try {
             $query = Mitra::with('klasifikasiMitra'); // Eager load klasifikasi
@@ -76,7 +76,7 @@ class MitraController extends Controller
      * @param Request $request Partner details.
      * @return JsonResponse Created partner data.
      */
-    public function store(Request $request)
+    public function addMitra(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255|unique:mitra,nama',
@@ -120,7 +120,7 @@ class MitraController extends Controller
      * @param int|string $id Partner ID.
      * @return JsonResponse Updated partner data.
      */
-    public function update(Request $request, $id)
+    public function updateMitra(Request $request, $id)
     {
         $request->validate([
             'nama' => 'string|max:255',
@@ -162,7 +162,7 @@ class MitraController extends Controller
      * @param int|string $id Partner ID.
      * @return JsonResponse Success or failure message.
      */
-    public function destroy($id)
+    public function deleteMitra($id)
     {
         try {
             $mitra = Mitra::find($id);
@@ -196,7 +196,7 @@ class MitraController extends Controller
      * @param int|string $id Partner ID.
      * @return JsonResponse Updated partner status.
      */
-    public function approve($id)
+    public function approveMitra($id)
     {
         try {
             $mitra = Mitra::find($id);
@@ -225,7 +225,7 @@ class MitraController extends Controller
      * @param int|string $id Partner ID.
      * @return JsonResponse Success message.
      */
-    public function reject($id)
+    public function rejectMitra($id)
     {
         try {
             $mitra = Mitra::find($id);
@@ -295,7 +295,7 @@ class MitraController extends Controller
      * @param Request $request Partner name.
      * @return JsonResponse Created partner data.
      */
-    public function storeQuick(Request $request)
+    public function addMitraQuick(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255|unique:mitra,nama',

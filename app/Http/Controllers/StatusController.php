@@ -18,7 +18,7 @@ class StatusController extends Controller
      * @param Request $request Filter parameters (q, per_page).
      * @return JsonResponse Paginated list of statuses.
      */
-    public function index(Request $request): JsonResponse
+    public function getStatus(Request $request): JsonResponse
     {
         try {
             $query = Status::query();
@@ -61,7 +61,7 @@ class StatusController extends Controller
      * @param Request $request Status details (nama).
      * @return JsonResponse Created status data.
      */
-    public function store(Request $request): JsonResponse
+    public function addStatus(Request $request): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -103,7 +103,7 @@ class StatusController extends Controller
      * @param int|string $id Status ID.
      * @return JsonResponse Updated status data.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function updateStatus(Request $request, $id): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -146,7 +146,7 @@ class StatusController extends Controller
      * @param int|string $id Status ID.
      * @return JsonResponse Success or failure message.
      */
-    public function destroy($id): JsonResponse
+    public function deleteStatus($id): JsonResponse
     {
         try {
             $status = Status::findOrFail($id);

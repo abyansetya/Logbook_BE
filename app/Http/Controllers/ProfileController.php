@@ -21,7 +21,7 @@ class ProfileController extends Controller
      * @param ProfileRequest $request Validated profile data (nama, email, nim_nip).
      * @return JsonResponse Updated user profile data and success message.
      */
-    public function update(ProfileRequest $request)
+    public function updateProfile(ProfileRequest $request)
     {
         DB::beginTransaction();
 
@@ -75,7 +75,7 @@ class ProfileController extends Controller
      * @param ChangePasswordRequest $request Validated password confirmation.
      * @return JsonResponse Success message.
      */
-    public function changePassword(ChangePasswordRequest $request)
+    public function updatePassword(ChangePasswordRequest $request)
     {
         $user = $request->user();
 

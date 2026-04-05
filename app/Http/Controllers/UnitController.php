@@ -18,7 +18,7 @@ class UnitController extends Controller
      * @param Request $request Filter parameters (q, per_page).
      * @return JsonResponse Paginated list of units.
      */
-    public function index(Request $request): JsonResponse
+    public function getUnit(Request $request): JsonResponse
     {
         try {
             $query = Unit::query();
@@ -61,7 +61,7 @@ class UnitController extends Controller
      * @param Request $request Unit details (nama).
      * @return JsonResponse Created unit data.
      */
-    public function store(Request $request): JsonResponse
+    public function addUnit(Request $request): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -103,7 +103,7 @@ class UnitController extends Controller
      * @param int|string $id Unit ID.
      * @return JsonResponse Updated unit data.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function updateUnit(Request $request, $id): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -146,7 +146,7 @@ class UnitController extends Controller
      * @param int|string $id Unit ID.
      * @return JsonResponse Success or failure message.
      */
-    public function destroy($id): JsonResponse
+    public function deleteUnit($id): JsonResponse
     {
         try {
             $unit = Unit::findOrFail($id);

@@ -29,7 +29,7 @@ class AuthController extends Controller
      * @param LoginRequest $request Validated login credentials.
      * @return JsonResponse Response containing user data and authentication token or error message.
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function submitLogin(LoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -77,7 +77,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse Success or failure message.
      */
-    public function logout(Request $request): JsonResponse
+    public function submitLogout(Request $request): JsonResponse
     {
         try {
             // Revoke only the current token
@@ -104,7 +104,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse Success message with count of revoked tokens.
      */
-    public function logoutAll(Request $request): JsonResponse
+    public function submitLogoutAll(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
@@ -140,7 +140,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse Current user data including roles.
      */
-    public function me(Request $request): JsonResponse
+    public function getMe(Request $request): JsonResponse
     {
         $user = $request->user();
         
@@ -164,7 +164,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse New authentication token.
      */
-    public function refresh(Request $request): JsonResponse
+    public function refreshToken(Request $request): JsonResponse
     {
         try {
             $user = $request->user();

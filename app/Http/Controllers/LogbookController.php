@@ -23,7 +23,7 @@ class LogbookController extends Controller
      * @param addLogRequest $request Validated log data.
      * @return JsonResponse Created log entry.
      */
-    public function store(addLogRequest $request): JsonResponse
+    public function addLog(addLogRequest $request): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -71,7 +71,7 @@ class LogbookController extends Controller
      * @param int|string $id The log ID.
      * @return JsonResponse Updated log entry.
      */
-    public function update(updateLogRequest $request, $id): JsonResponse
+    public function updateLog(updateLogRequest $request, $id): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -108,7 +108,7 @@ class LogbookController extends Controller
      * @param int|string $id The log ID.
      * @return JsonResponse Success or failure message.
      */
-    public function destroy($id): JsonResponse
+    public function deleteLog($id): JsonResponse
     {
         try {
             $log = Log::findOrFail($id);

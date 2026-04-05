@@ -28,7 +28,7 @@ class RegisterController extends Controller
      * @return JsonResponse Response containing the new user data and authentication token.
      * @throws \RuntimeException If the default viewer role is missing.
      */
-    public function register(RegisterRequest $request): JsonResponse
+    public function submitRegister(RegisterRequest $request): JsonResponse
     {
         $validated = $request->validated();
 

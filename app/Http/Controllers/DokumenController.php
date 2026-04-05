@@ -23,7 +23,7 @@ class DokumenController extends Controller
      * @param Request $request Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
      * @return JsonResponse Paginated list of documents.
      */
-    public function index(Request $request): JsonResponse
+    public function getDokumen(Request $request): JsonResponse
     {
         try {
             $query = Dokumen::with([
@@ -80,7 +80,7 @@ class DokumenController extends Controller
      * @param int|string $id The document ID.
      * @return JsonResponse Document details with related logs and users.
      */
-    public function show($id): JsonResponse
+    public function getDokumenById($id): JsonResponse
     {
         try {
             $dokumen = Dokumen::with([
@@ -107,7 +107,7 @@ class DokumenController extends Controller
      * @param addDokumenRequest $request Validated document data.
      * @return JsonResponse Created document resource.
      */
-    public function store(addDokumenRequest $request): JsonResponse
+    public function addDokumen(addDokumenRequest $request): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -158,7 +158,7 @@ class DokumenController extends Controller
      * @param int|string $id The document ID.
      * @return JsonResponse Updated document resource.
      */
-    public function update(editDokumenRequest $request, $id): JsonResponse
+    public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -241,7 +241,7 @@ class DokumenController extends Controller
      * @param int|string $id The document ID.
      * @return JsonResponse Success or failure message.
      */
-    public function destroy($id): JsonResponse
+    public function deleteDokumen($id): JsonResponse
     {
         try {
             $dokumen = Dokumen::findOrFail($id);
@@ -266,7 +266,7 @@ class DokumenController extends Controller
      * @param Request $request Search query 'q'.
      * @return JsonResponse List of matching document resources.
      */
-    public function search(Request $request): JsonResponse
+    public function searchDokumen(Request $request): JsonResponse
     {
         try {
             $query = $request->query('q');
@@ -299,7 +299,7 @@ class DokumenController extends Controller
      * @param Request $request Filter parameters (same as index).
      * @return \Symfony\Component\HttpFoundation\StreamedResponse Streamed Excel file download.
      */
-    public function export(Request $request)
+    public function exportDokumen(Request $request)
     {
         try {
             $query = Dokumen::with(['mitra.klasifikasiMitra', 'jenisDokumen', 'status', 'logs.user']);

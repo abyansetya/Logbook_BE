@@ -58,7 +58,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('logbook')->middleware('auth:sanctum', 'throttle:api')->group(function () {
         // 📄 Dokumen routes
         Route::get('/', [DokumenController::class, 'getDokumen'])->name('logbook.index');
-        Route::get('/dokumen/{id}', [DokumenController::class, 'getDokumenById'])->name('logbook.show-dokumen');
+        Route::get('/dokumen/{id}', [DokumenController::class, 'getLogbyId'])->name('logbook.show-dokumen');
         Route::get('/search-dokumen', [DokumenController::class, 'searchDokumen'])->name('logbook.search-dokumen');
         Route::get('/export', [DokumenController::class, 'exportDokumen'])->name('logbook.export');
 

@@ -80,7 +80,7 @@ class DokumenController extends Controller
      * @param int|string $id The document ID.
      * @return JsonResponse Document details with related logs and users.
      */
-    public function getDokumenById($id): JsonResponse
+    public function getLogbyId($id): JsonResponse
     {
         try {
             $dokumen = Dokumen::with([

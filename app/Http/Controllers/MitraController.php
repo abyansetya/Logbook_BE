@@ -252,7 +252,7 @@ class MitraController extends Controller
      * @param Request $request Search query 'q'.
      * @return JsonResponse List of matching partners.
      */
-     public function search(Request $request)
+     public function searchMitra(Request $request)
     {
         try {
             // Ambil nilai dari ?q=bank

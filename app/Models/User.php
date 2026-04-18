@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -17,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'nim_nip',
+        'role_id',
     ];
 
     protected $hidden = [
@@ -32,10 +32,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles()
+    public function role()
     {
-        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')
-                    ->withTimestamps();
+        return $this->belongsTo(Role::class);
     }
 
     public function logs()
@@ -43,15 +42,14 @@ class User extends Authenticatable
         return $this->hasMany(Log::class);
     }
 
-    // Helper method untuk cek role
     public function hasRole($roleName)
     {
-        return $this->roles()->where('nama', $roleName)->exists();
+        return $this->role && $this->role->nama === $roleName;
     }
 
     public function hasAnyRole($roles)
     {
-        return $this->roles()->whereIn('nama', $roles)->exists();
+        return $this->role && in_array($this->role->nama, (array) $roles, true);
     }
 
     public function activities()

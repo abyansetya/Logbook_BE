@@ -143,7 +143,7 @@ class HelperController extends Controller
      *
      * @return JsonResponse List of units.
      */
-    public function getUnit(): JsonResponse
+    public function getAllUnits(): JsonResponse
     {
         try {
             $unit = Cache::remember('helper_units', 86400, function () {

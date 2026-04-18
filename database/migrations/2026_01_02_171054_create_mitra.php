@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('mitra', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');
+            $table->string('nama', 150);
             $table->unsignedBigInteger('klasifikasi_mitra_id');
             $table->text('alamat')->nullable();
-            $table->string('contact_person')->nullable();
+            $table->string('contact_person', 100)->nullable();
             $table->timestamps();
 
             $table->foreign('klasifikasi_mitra_id')

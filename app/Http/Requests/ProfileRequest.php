@@ -24,7 +24,7 @@ class ProfileRequest extends FormRequest
         $userId = $this->user()->id;
         return [
             'nama' => 'required|string|max:255',
-            'nim_nip' => 'nullable|string|max:50|unique:users,nim_nip,' . $userId,
+            'nim_nip' => 'required|string|max:50|unique:users,nim_nip,' . $userId,
             'email' => "required|email|unique:users,email,{$userId}",
         ];  
     }
@@ -38,6 +38,7 @@ class ProfileRequest extends FormRequest
             'email.unique' => 'Email sudah terdaftar',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak sama',
+            'nim_nip.required' => 'NIM / NIP wajib diisi',
             'nim_nip.unique' => 'NIM / NIP sudah terdaftar',
         ];
     }

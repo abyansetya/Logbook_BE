@@ -35,25 +35,21 @@ class RegisterController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create user (password will be hashed automatically via cast)
+            $viewerRole = Role::where('nama', 'Viewer')->first();
+
+            if (!$viewerRole) {
+                throw new \RuntimeException('Default role "Viewer" not found in database');
+            }
+
             $user = User::create([
                 'nama' => $validated['nama'],
                 'email' => $validated['email'],
-                'password' => $validated['password'], // Will be hashed by 'hashed' cast
+                'password' => $validated['password'],
                 'nim_nip' => $validated['nim_nip'],
+                'role_id' => $viewerRole->id,
             ]);
 
-            // Attach default role: viewer
-            $viewerRole = Role::where('nama', 'viewer')->first();
-
-            if (!$viewerRole) {
-                throw new \RuntimeException('Default role "viewer" not found in database');
-            }
-
-            $user->roles()->attach($viewerRole->id);
-
-            // Load roles for response
-            $user->load('roles');
+            $user->load('role');
 
             // Create token with abilities and expiration
             $token = $user->createToken(
@@ -109,7 +105,7 @@ class RegisterController extends Controller
             'nama' => $user->nama,
             'email' => $user->email,
             'nim_nip' => $user->nim_nip,
-            'roles' => $user->roles->pluck('nama')->toArray(),
+            'role' => $user->role?->nama,
             'created_at' => $user->created_at->toISOString(),
             'updated_at' => $user->updated_at->toISOString(),
         ];

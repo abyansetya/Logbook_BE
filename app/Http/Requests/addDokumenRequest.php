@@ -36,7 +36,12 @@ class addDokumenRequest extends FormRequest
             'mitra_id' => ['required', 'exists:mitra,id'],
             'jenis_dokumen_id' => ['required', 'exists:jenis_dokumen,id'],
             'status_id' => ['required', 'exists:status,id'],
-            'nomor_dokumen_mitra' => ['nullable', 'string', 'max:255'],
+            'nomor_dokumen_mitra' => [
+                'nullable',
+                'string',
+                'max:255',
+                'unique:dokumen,nomor_dokumen_mitra'
+            ],
             'nomor_dokumen_undip' => [
                 'nullable', 
                 'string', 
@@ -69,6 +74,7 @@ class addDokumenRequest extends FormRequest
             'tanggal_masuk.date' => 'Format tanggal masuk tidak valid.',
             'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
             'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',
+            'nomor_dokumen_mitra.unique' => 'Nomor dokumen mitra sudah digunakan.',
             'nomor_dokumen_undip.max' => 'Nomor dokumen UNDIP maksimal 255 karakter.',
             'nomor_dokumen_undip.unique' => 'Nomor dokumen UNDIP sudah digunakan.',
             'draft_dokumen.file' => 'Draft dokumen harus berupa file.',

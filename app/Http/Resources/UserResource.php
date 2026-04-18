@@ -19,8 +19,8 @@ class UserResource extends JsonResource
             'nama' => $this->nama,
             'email' => $this->email,
             'nim_nip' => $this->nim_nip,
-            'roles' => $this->whenLoaded('roles', function () {
-                return $this->roles->pluck('nama');
+            'role' => $this->whenLoaded('role', function () {
+                return $this->role?->nama;
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

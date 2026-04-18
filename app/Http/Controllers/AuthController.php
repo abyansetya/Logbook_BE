@@ -212,7 +212,7 @@ class AuthController extends Controller
             'nama' => $user->nama,
             'email' => $user->email,
             'nim_nip' => $user->nim_nip,
-            'roles' => $user->roles->pluck('nama')->toArray(),
+            'role' => $user->role?->nama,
             'created_at' => $user->created_at->toISOString(),
             'updated_at' => $user->updated_at->toISOString(),
         ];

@@ -79,7 +79,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
         Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');
         Route::get('/getKlasifikasi', [HelperController::class, 'getKlasifikasi'])->name('helper.getKlasifikasi');
-        Route::get('/getUnit', [HelperController::class, 'getUnit'])->name('helper.getUnit');
+        Route::get('/getUnit', [HelperController::class, 'getAllUnits'])->name('helper.getUnit');
         Route::get('/activities', [HelperController::class, 'getRecentActivities'])->name('helper.activities');
 
         Route::middleware('role:Admin,Operator')->group(function () {

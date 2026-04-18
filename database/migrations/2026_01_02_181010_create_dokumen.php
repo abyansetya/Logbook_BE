@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('mitra_id');
             $table->unsignedBigInteger('jenis_dokumen_id');
-            $table->string('nomor_dokumen_mitra')->nullable();
-            $table->string('nomor_dokumen_undip')->nullable();
-            $table->string('judul_dokumen');
+            $table->string('nomor_dokumen_mitra', 50)->nullable();
+            $table->string('nomor_dokumen_undip', 50)->nullable();
+            $table->string('judul_dokumen', 200);
             $table->unsignedBigInteger('status_id');
             $table->date('tanggal_masuk')->nullable();
             $table->date('tanggal_terbit')->nullable();

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('mitra_id');
             $table->unsignedBigInteger('dokumen_id');
             $table->text('keterangan')->nullable();
-            $table->string('contact_person')->nullable();
+            $table->string('contact_person', 100)->nullable();
             $table->date('tanggal_log');
             $table->timestamps();
 

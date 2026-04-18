@@ -21,6 +21,9 @@ class ChangePasswordRequest extends FormRequest
                 'string',
                 'min:8',
                 'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&#^()_\-+=]/',
             ],
         ];
     }
@@ -54,6 +57,7 @@ class ChangePasswordRequest extends FormRequest
             'current_password.required' => 'Password saat ini wajib diisi',
             'new_password.required' => 'Password baru wajib diisi',
             'new_password.min' => 'Password baru minimal 8 karakter',
+            'new_password.regex' => 'Password baru harus mengandung huruf besar, angka, dan karakter khusus (@$!%*?&#^()_-+=)',
             'new_password.confirmed' => 'Konfirmasi password baru tidak sama',
         ];
     }

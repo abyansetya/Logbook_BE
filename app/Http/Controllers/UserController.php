@@ -30,7 +30,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $users = User::with('roles')->orderBy('created_at', 'desc')->get();
+        $users = User::with('role')->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Data users berhasil diambil',
@@ -40,7 +40,7 @@ class UserController extends Controller
                     'nama' => $user->nama,
                     'email' => $user->email,
                     'nim_nip' => $user->nim_nip,
-                    'roles' => $user->roles->pluck('nama'), // Send array of role names
+                    'role' => $user->role?->nama,
                     'created_at' => $user->created_at,
                 ];
             }),
@@ -75,9 +75,7 @@ class UserController extends Controller
         try {
             $role = Role::where('nama', $newRoleName)->firstOrFail();
 
-            // Sync roles (replaces existing roles with the new one)
-            // Assuming a user only has one primary role for this system context
-            $user->roles()->sync([$role->id]);
+            $user->update(['role_id' => $role->id]);
 
             // Invalidate cache user yang rolenya diubah
             Cache::forget("user_profile_{$id}");
@@ -95,8 +93,8 @@ class UserController extends Controller
                 'message' => 'Role user berhasil diperbarui',
                 'data' => [
                     'id' => $user->id,
-                    'roles' => $user->roles->pluck('nama'),
-                ]   
+                    'role' => $role->nama,
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -128,8 +126,6 @@ class UserController extends Controller
 
         DB::beginTransaction();
         try {
-            // Delete related data if needed (e.g. detach roles)
-            $user->roles()->detach();
             $user->tokens()->delete();
             
             // Invalidate cache user yang dihapus
@@ -181,7 +177,7 @@ class UserController extends Controller
                 ]);
             }
 
-            $users = User::with('roles')
+            $users = User::with('role')
                 ->where('nama', 'LIKE', "%{$query}%")
                 ->limit(10)
                 ->get();

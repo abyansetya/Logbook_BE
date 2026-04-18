@@ -40,8 +40,7 @@ class ProfileController extends Controller
         // Hapus cache profile agar data terbaru diambil pada request berikutnya
         Cache::forget("user_profile_{$user->id}");
 
-        //reload user with roles
-        $user->load('roles');
+        $user->load('role');
 
         DB::commit();
 
@@ -53,7 +52,7 @@ class ProfileController extends Controller
                     'nama' => $user->nama,
                     'email' => $user->email,
                     'nim_nip' => $user->nim_nip,
-                    'roles' => $user->roles->pluck('nama')->toArray(),
+                    'role' => $user->role?->nama,
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
                 ]

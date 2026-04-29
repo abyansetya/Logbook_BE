@@ -6,6 +6,7 @@ use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Manages document status categories (e.g., Draft, Terbit, Batal).
@@ -72,6 +73,7 @@ class StatusController extends Controller
             $status = Status::create($validated);
 
             DB::commit();
+            Cache::forget('helper_statuses');
 
             return response()->json([
                 'success' => true,
@@ -116,6 +118,7 @@ class StatusController extends Controller
             $status->update($validated);
 
             DB::commit();
+            Cache::forget('helper_statuses');
 
             return response()->json([
                 'success' => true,
@@ -151,6 +154,7 @@ class StatusController extends Controller
         try {
             $status = Status::findOrFail($id);
             $status->delete();
+            Cache::forget('helper_statuses');
 
             return response()->json([
                 'success' => true,

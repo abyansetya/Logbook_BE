@@ -76,6 +76,8 @@ class UserController extends Controller
             $role = Role::where('nama', $newRoleName)->firstOrFail();
 
             $user->update(['role_id' => $role->id]);
+            $user->tokens()->delete();
+            $user->tokens()->delete();
 
             // Invalidate cache user yang rolenya diubah
             Cache::forget("user_profile_{$id}");

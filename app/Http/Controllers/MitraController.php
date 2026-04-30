@@ -306,7 +306,7 @@ class MitraController extends Controller
 
             $mitra = Mitra::create([
                 'nama' => $request->input('nama'),
-                'klasifikasi_mitra_id' => 16,
+                'klasifikasi_mitra_id' => KlasifikasiMitra::where('nama', 'Belum ditentukan')->value('id') ?? 16,
                 'status' => $status
             ]);
 

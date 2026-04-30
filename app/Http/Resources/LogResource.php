@@ -17,11 +17,11 @@ class LogResource extends JsonResource
         {
             return [
                 'id' => $this->id,
-                'tanggal_log' => Carbon::parse($this->tanggal_log)->translatedFormat('d F Y'),
+                'tanggal_log' => Carbon::parse($this->tanggal_log)->format('Y-m-d'),
                 'keterangan' => $this->keterangan,
                 'unit_id' => $this->unit_id,
                 'unit_name' => $this->unit->nama ?? null,
-                'updated_at' => optional($this->updated_at)->translatedFormat('d F Y'),
+                'updated_at' => optional($this->updated_at)->format('Y-m-d'),
                 'admin' => [
                     'id' => $this->user->id ?? null,
                     'nama' => $this->user->nama ?? 'Sistem',

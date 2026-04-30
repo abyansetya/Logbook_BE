@@ -162,7 +162,7 @@ class DokumenController extends Controller
     {
         DB::beginTransaction();
         try {
-            $dokumen = Dokumen::with('status')->findOrFail($id);
+            $dokumen = Dokumen::with('status')->lockForUpdate()->findOrFail($id);
 
             if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
                 if (!$request->user()->hasRole('Admin')) {
@@ -241,7 +241,38 @@ class DokumenController extends Controller
      * @param int|string $id The document ID.
      * @return JsonResponse Success or failure message.
      */
-    public function deleteDokumen($id): JsonResponse
+    public function deleteDokumen(Request $request, $id): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $dokumen = Dokumen::with('status')->findOrFail($id);
+
+            if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
+                if (!$request->user()->hasRole('Admin')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya Admin yang dapat menghapus dokumen yang sudah berstatus Terbit'
+                    ], 403);
+                }
+            }
+
+            $dokumen->delete();
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumen berhasil dihapus'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus dokumen',
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+            ], 500);
+        }
+    }
     {
         try {
             $dokumen = Dokumen::findOrFail($id);

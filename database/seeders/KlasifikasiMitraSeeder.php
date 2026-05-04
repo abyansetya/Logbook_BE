@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class KlasifikasiMitraSeeder extends Seeder
 {
@@ -15,8 +15,6 @@ class KlasifikasiMitraSeeder extends Seeder
     {
         $now = Carbon::now();
 
-
-        
         DB::table('klasifikasi_mitra')->insert([
             [
                 'nama' => 'Perusahaan Multinasional',

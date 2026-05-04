@@ -22,11 +22,12 @@ class ProfileRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->user()->id;
+
         return [
             'nama' => 'required|string|max:255',
-            'nim_nip' => 'required|string|max:50|unique:users,nim_nip,' . $userId,
+            'nim_nip' => 'required|string|max:50|unique:users,nim_nip,'.$userId,
             'email' => "required|email|unique:users,email,{$userId}",
-        ];  
+        ];
     }
 
     public function messages(): array

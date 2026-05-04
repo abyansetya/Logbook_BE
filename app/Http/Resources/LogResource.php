@@ -14,19 +14,19 @@ class LogResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
-        {
-            return [
-                'id' => $this->id,
-                'tanggal_log' => Carbon::parse($this->tanggal_log)->format('Y-m-d'),
-                'keterangan' => $this->keterangan,
-                'unit_id' => $this->unit_id,
-                'unit_name' => $this->unit->nama ?? null,
-                'updated_at' => optional($this->updated_at)->format('Y-m-d'),
-                'admin' => [
-                    'id' => $this->user->id ?? null,
-                    'nama' => $this->user->nama ?? 'Sistem',
-                ]
-               
-            ];
-        }
+    {
+        return [
+            'id' => $this->id,
+            'tanggal_log' => Carbon::parse($this->tanggal_log)->translatedFormat('d F Y'),
+            'keterangan' => $this->keterangan,
+            'unit_id' => $this->unit_id,
+            'unit_name' => $this->unit->nama ?? null,
+            'updated_at' => optional($this->updated_at)->translatedFormat('d F Y'),
+            'admin' => [
+                'id' => $this->user->id ?? null,
+                'nama' => $this->user->nama ?? 'Sistem',
+            ],
+
+        ];
+    }
 }

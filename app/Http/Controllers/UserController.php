@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
-use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Manages administrative user tasks, specifically role management and account deletion.
@@ -20,13 +19,12 @@ class UserController extends Controller
     /**
      * List all users with their assigned roles.
      *
-     * @param Request $request
      * @return JsonResponse List of users with IDs, names, emails, and roles.
      */
     public function getUsers(Request $request)
     {
         // Ensure only admin can access (Double check, besides route middleware)
-        if (!$request->user()->hasRole('Admin')) {
+        if (! $request->user()->hasRole('Admin')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -50,14 +48,14 @@ class UserController extends Controller
     /**
      * Change a user's role and invalidate their profile cache.
      *
-     * @param Request $request Validated role name.
-     * @param int|string $id Target user ID.
+     * @param  Request  $request  Validated role name.
+     * @param  int|string  $id  Target user ID.
      * @return JsonResponse Updated user and roles.
      */
     public function updateUserRole(Request $request, $id)
     {
         // Ensure only admin can access
-        if (!$request->user()->hasRole('Admin')) {
+        if (! $request->user()->hasRole('Admin')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -77,7 +75,6 @@ class UserController extends Controller
 
             $user->update(['role_id' => $role->id]);
             $user->tokens()->delete();
-            $user->tokens()->delete();
 
             // Invalidate cache user yang rolenya diubah
             Cache::forget("user_profile_{$id}");
@@ -87,7 +84,7 @@ class UserController extends Controller
             Log::info('User role updated', [
                 'admin_id' => $request->user()->id,
                 'target_user_id' => $user->id,
-                'new_role' => $newRoleName
+                'new_role' => $newRoleName,
             ]);
 
             return response()->json([
@@ -96,26 +93,28 @@ class UserController extends Controller
                 'data' => [
                     'id' => $user->id,
                     'role' => $role->nama,
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to update user role', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Gagal memperbarui role'], 500);
         }
     }
+
     /**
      * Permanently remove a user account and detach their roles.
      *
-     * @param Request $request Source admin request.
-     * @param int|string $id Target user ID.
+     * @param  Request  $request  Source admin request.
+     * @param  int|string  $id  Target user ID.
      * @return JsonResponse Success or failure message.
      */
     public function deleteUser(Request $request, $id)
     {
         // Ensure only admin can access
-        if (!$request->user()->hasRole('Admin')) {
+        if (! $request->user()->hasRole('Admin')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -129,10 +128,10 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $user->tokens()->delete();
-            
+
             // Invalidate cache user yang dihapus
             Cache::forget("user_profile_{$id}");
-            
+
             // Delete user
             $user->delete();
 
@@ -141,7 +140,7 @@ class UserController extends Controller
             Log::info('User deleted', [
                 'admin_id' => $request->user()->id,
                 'deleted_user_id' => $id,
-                'deleted_user_email' => $user->email
+                'deleted_user_email' => $user->email,
             ]);
 
             return response()->json([
@@ -151,6 +150,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to delete user', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Gagal menghapus user'], 500);
         }
     }
@@ -159,13 +159,13 @@ class UserController extends Controller
     /**
      * Search for users by name for selection or administration.
      *
-     * @param Request $request Search query 'q'.
+     * @param  Request  $request  Search query 'q'.
      * @return JsonResponse List of matching user resources.
      */
     public function searchUser(Request $request): JsonResponse
     {
         // Ensure only admin can access
-        if (!$request->user()->hasRole('Admin')) {
+        if (! $request->user()->hasRole('Admin')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -175,7 +175,7 @@ class UserController extends Controller
             if (empty($query)) {
                 return response()->json([
                     'success' => true,
-                    'data' => []
+                    'data' => [],
                 ]);
             }
 
@@ -186,14 +186,14 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' =>   UserResource::collection($users)
+                'data' => UserResource::collection($users),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan pada server',
-                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }

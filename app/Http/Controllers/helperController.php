@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\ActivityLogs;
-use App\Models\Status;
 use App\Models\KlasifikasiMitra;
+use App\Models\Status;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Provides static/helper data for form selections and filters.
@@ -34,7 +33,7 @@ class HelperController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar status berhasil diambil',
-                'data'    => $status
+                'data' => $status,
             ], 200);
 
         } catch (\Exception $e) {
@@ -42,7 +41,7 @@ class HelperController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data status',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -63,14 +62,14 @@ class HelperController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar klasifikasi mitra berhasil diambil',
-                'data'    => $klasifikasi
+                'data' => $klasifikasi,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data klasifikasi mitra',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -78,7 +77,7 @@ class HelperController extends Controller
     /**
      * Log a user activity to the database.
      *
-     * @param Request $request Activity details (user_id, action, description, type).
+     * @param  Request  $request  Activity details (user_id, action, description, type).
      * @return JsonResponse Created activity log data.
      */
     public function saveActivity(Request $request): JsonResponse
@@ -94,17 +93,19 @@ class HelperController extends Controller
             ]);
 
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Aktivitas berhasil disimpan',
-                'data'    => $activity
+                'data' => $activity,
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan aktivitas',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -126,18 +127,18 @@ class HelperController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '5 aktivitas terbaru berhasil diambil',
-                'data'    => $activities
+                'data' => $activities,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data aktivitas',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
-    
+
     /**
      * Retrieve all available organizational units.
      *
@@ -153,14 +154,14 @@ class HelperController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar unit berhasil diambil',
-                'data'    => $unit
+                'data' => $unit,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data unit',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }

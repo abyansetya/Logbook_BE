@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DokumenResource extends JsonResource
@@ -23,13 +22,13 @@ class DokumenResource extends JsonResource
             'tanggal_masuk' => $this->tanggal_masuk ? $this->tanggal_masuk->format('Y-m-d') : null,
             'tanggal_terbit' => $this->tanggal_terbit ? $this->tanggal_terbit->format('Y-m-d') : null,
             'contact_person' => $this->contact_person,
-            'draft_dokumen' => $this->draft_dokumen ? asset('storage/' . $this->draft_dokumen) : null,
-            'final_dokumen' => $this->final_dokumen ? asset('storage/' . $this->final_dokumen) : null,
-            
+            'draft_dokumen' => $this->draft_dokumen ? asset('storage/'.$this->draft_dokumen) : null,
+            'final_dokumen' => $this->final_dokumen ? asset('storage/'.$this->final_dokumen) : null,
+
             // Mengambil nama dari relasi, bukan cuma ID-nya
             'jenis_dokumen' => $this->jenisDokumen ? $this->jenisDokumen->nama : null,
             'status' => $this->status ? $this->status->nama : null,
-            
+
             // Jika butuh ID asli untuk kebutuhan form edit di React
             'jenis_dokumen_id' => $this->jenis_dokumen_id,
             'status_id' => $this->status_id,
@@ -37,10 +36,10 @@ class DokumenResource extends JsonResource
 
             // Relasi Objek Lengkap (Hanya dikirim jika di-load di Controller)
             'mitra' => new MitraResource($this->whenLoaded('mitra')),
-            
+
             // Log Aktivitas (Hanya muncul di halaman detail)
             'logs' => LogResource::collection($this->whenLoaded('logs')),
-            
+
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }

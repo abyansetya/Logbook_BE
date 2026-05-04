@@ -12,7 +12,7 @@ class addLogRequest extends FormRequest
     public function authorize(): bool
     {
         // Ubah ke true agar request bisa diproses
-        return true; 
+        return true;
     }
 
     /**
@@ -21,11 +21,11 @@ class addLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mitra_id'   => 'required|exists:mitra,id',
+            'mitra_id' => 'required|exists:mitra,id',
             'dokumen_id' => 'required|exists:dokumen,id',
-            'unit_id'    => 'required|exists:unit,id',
-            'keterangan'     => 'required|string|min:5',
-            'tanggal_log'    => 'required|date',
+            'unit_id' => 'required|exists:unit,id',
+            'keterangan' => 'required|string|min:5',
+            'tanggal_log' => 'required|date',
         ];
     }
 
@@ -35,14 +35,14 @@ class addLogRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'tanggal_log.required'    => 'Tanggal aktivitas wajib diisi.',
-            'tanggal_log.date'        => 'Format tanggal tidak valid.',
-            'keterangan.required'     => 'Keterangan aktivitas tidak boleh kosong.',
-            'keterangan.min'          => 'Keterangan minimal berisi 5 karakter.',
-            'unit_id.required'        => 'Unit penginput harus diisi.',
-            'unit_id.exists'          => 'Unit yang dipilih tidak valid.',
-            'mitra_id.exists'         => 'Mitra yang dipilih tidak valid.',
-            'dokumen_id.exists'       => 'Dokumen yang dipilih tidak valid.',
+            'tanggal_log.required' => 'Tanggal aktivitas wajib diisi.',
+            'tanggal_log.date' => 'Format tanggal tidak valid.',
+            'keterangan.required' => 'Keterangan aktivitas tidak boleh kosong.',
+            'keterangan.min' => 'Keterangan minimal berisi 5 karakter.',
+            'unit_id.required' => 'Unit penginput harus diisi.',
+            'unit_id.exists' => 'Unit yang dipilih tidak valid.',
+            'mitra_id.exists' => 'Mitra yang dipilih tidak valid.',
+            'dokumen_id.exists' => 'Dokumen yang dipilih tidak valid.',
         ];
     }
 }

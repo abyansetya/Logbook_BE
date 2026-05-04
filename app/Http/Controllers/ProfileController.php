@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\ProfileRequest;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Handles user profile updates and security settings like password changes.
@@ -18,33 +17,33 @@ class ProfileController extends Controller
     /**
      * Update the authenticated user's profile information.
      *
-     * @param ProfileRequest $request Validated profile data (nama, email, nim_nip).
+     * @param  ProfileRequest  $request  Validated profile data (nama, email, nim_nip).
      * @return JsonResponse Updated user profile data and success message.
      */
     public function updateProfile(ProfileRequest $request)
     {
         DB::beginTransaction();
 
-        try{
+        try {
 
-        $user = $request->user();
+            $user = $request->user();
 
-        $updatedData = $request->only(['nama', 'email']);
+            $updatedData = $request->only(['nama', 'email']);
 
-        if($request->filled('nim_nip')) {
-            $updatedData['nim_nip'] = $request->input('nim_nip');
-        }
+            if ($request->filled('nim_nip')) {
+                $updatedData['nim_nip'] = $request->input('nim_nip');
+            }
 
-        $user->update($updatedData);
+            $user->update($updatedData);
 
-        // Hapus cache profile agar data terbaru diambil pada request berikutnya
-        Cache::forget("user_profile_{$user->id}");
+            // Hapus cache profile agar data terbaru diambil pada request berikutnya
+            Cache::forget("user_profile_{$user->id}");
 
-        $user->load('role');
+            $user->load('role');
 
-        DB::commit();
+            DB::commit();
 
-         return response()->json([
+            return response()->json([
                 'success' => true,
                 'message' => 'Profil berhasil diperbarui',
                 'data' => [
@@ -55,12 +54,11 @@ class ProfileController extends Controller
                     'role' => $user->role?->nama,
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
-                ]
+                ],
             ], 200);
-        } 
-        
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'message' => 'Failed to update profile',
                 'error' => $e->getMessage(),
@@ -71,7 +69,7 @@ class ProfileController extends Controller
     /**
      * Change the authenticated user's password.
      *
-     * @param ChangePasswordRequest $request Validated password confirmation.
+     * @param  ChangePasswordRequest  $request  Validated password confirmation.
      * @return JsonResponse Success message.
      */
     public function updatePassword(ChangePasswordRequest $request)

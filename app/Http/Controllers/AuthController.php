@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Handles user authentication including registration, login, logout, and token management.
@@ -26,7 +24,7 @@ class AuthController extends Controller
     /**
      * Authenticate a user and issue a new API token.
      *
-     * @param LoginRequest $request Validated login credentials.
+     * @param  LoginRequest  $request  Validated login credentials.
      * @return JsonResponse Response containing user data and authentication token or error message.
      */
     public function submitLogin(LoginRequest $request): JsonResponse
@@ -37,7 +35,7 @@ class AuthController extends Controller
         $user = User::where('email', strtolower($validated['email']))->first();
 
         // Check credentials (use same error message to prevent user enumeration)
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             Log::warning('Failed login attempt', ['email' => $validated['email']]);
 
             return response()->json([
@@ -74,7 +72,6 @@ class AuthController extends Controller
     /**
      * Revoke the current authenticated user's access token.
      *
-     * @param Request $request
      * @return JsonResponse Success or failure message.
      */
     public function submitLogout(Request $request): JsonResponse
@@ -101,7 +98,6 @@ class AuthController extends Controller
     /**
      * Revoke all access tokens for the authenticated user across all devices.
      *
-     * @param Request $request
      * @return JsonResponse Success message with count of revoked tokens.
      */
     public function submitLogoutAll(Request $request): JsonResponse
@@ -137,16 +133,16 @@ class AuthController extends Controller
     /**
      * Get the profile data for the currently authenticated user.
      *
-     * @param Request $request
      * @return JsonResponse Current user data including roles.
      */
     public function getMe(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         // Cache data profil user (termasuk role) selama 1 jam
         $userData = Cache::remember("user_profile_{$user->id}", 3600, function () use ($user) {
             $user->load('roles');
+
             return $this->formatUserResponse($user);
         });
 
@@ -161,7 +157,6 @@ class AuthController extends Controller
     /**
      * Revoke the current token and issue a fresh one with a new expiration date.
      *
-     * @param Request $request
      * @return JsonResponse New authentication token.
      */
     public function refreshToken(Request $request): JsonResponse
@@ -202,7 +197,7 @@ class AuthController extends Controller
     /**
      * Format the user object for a consistent API response.
      *
-     * @param User $user The user model to format.
+     * @param  User  $user  The user model to format.
      * @return array Formatted user data.
      */
     private function formatUserResponse(User $user): array

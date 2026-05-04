@@ -31,7 +31,6 @@ class addDokumenRequest extends FormRequest
     public function rules(): array
     {
 
-
         return [
             'mitra_id' => ['required', 'exists:mitra,id'],
             'jenis_dokumen_id' => ['required', 'exists:jenis_dokumen,id'],
@@ -40,13 +39,13 @@ class addDokumenRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:255',
-                'unique:dokumen,nomor_dokumen_mitra'
+                'unique:dokumen,nomor_dokumen_mitra',
             ],
             'nomor_dokumen_undip' => [
-                'nullable', 
-                'string', 
-                'max:255', 
-                'unique:dokumen,nomor_dokumen_undip'
+                'nullable',
+                'string',
+                'max:255',
+                'unique:dokumen,nomor_dokumen_undip',
             ],
             'judul_dokumen' => ['required', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],

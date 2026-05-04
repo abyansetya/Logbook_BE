@@ -33,9 +33,9 @@ class LogSeeder extends Seeder
             // Log 2: Proses (Random)
             if ($dokumen->status_id > 1) {
                 $tanggalLog2 = \Carbon\Carbon::parse($dokumen->tanggal_masuk)->addDays(rand(2, 5));
-                
+
                 DB::table('log')->insert([
-                     'user_id' => $users->random(),
+                    'user_id' => $users->random(),
                     'mitra_id' => $dokumen->mitra_id,
                     'dokumen_id' => $dokumen->id,
                     'unit_id' => $units->random(),
@@ -49,9 +49,9 @@ class LogSeeder extends Seeder
             // Log 3: Jika Terbit or nearing terbit
             if ($dokumen->status_id == 5) { // Terbit
                 $tanggalLog3 = \Carbon\Carbon::parse($dokumen->tanggal_terbit);
-                
+
                 DB::table('log')->insert([
-                     'user_id' => $users->random(),
+                    'user_id' => $users->random(),
                     'mitra_id' => $dokumen->mitra_id,
                     'dokumen_id' => $dokumen->id,
                     'unit_id' => $units->random(),

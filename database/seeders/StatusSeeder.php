@@ -23,7 +23,7 @@ class StatusSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-                        [
+            [
                 'nama' => 'Naskah Dikirim',
                 'created_at' => now(),
                 'updated_at' => now(),

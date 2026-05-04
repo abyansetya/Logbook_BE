@@ -22,9 +22,9 @@ return new class extends Migration
             // Sangat berguna karena query index() Anda menggunakan ->orderBy('created_at', 'desc')
             $table->index('created_at');
             $table->index('tanggal_masuk');
-            
+
             // 4. (Opsional) Fulltext index jika ingin pencarian judul sangat cepat
-             $table->fullText('judul_dokumen');
+            $table->fullText('judul_dokumen');
         });
     }
 

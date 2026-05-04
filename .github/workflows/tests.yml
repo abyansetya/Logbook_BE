@@ -6,10 +6,9 @@ on:
       - main
       - skripsi
   pull_request:
+    branches:
       - main
       - skripsi
-  schedule:
-    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -42,6 +41,9 @@ jobs:
 
       - name: Generate app key
         run: php artisan key:generate
+
+      - name: Check code style
+        run: vendor/bin/pint --test
 
       - name: Execute tests
         run: php artisan test

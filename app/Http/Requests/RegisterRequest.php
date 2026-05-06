@@ -30,9 +30,6 @@ class RegisterRequest extends FormRequest
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&#^()_\-+=]/',
             ],
             'password_confirmation' => 'required|string',
         ];
@@ -51,7 +48,6 @@ class RegisterRequest extends FormRequest
             'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 8 karakter',
-            'password.regex' => 'Password harus mengandung huruf besar, angka, dan karakter khusus (@$!%*?&#^()_-+=)',
             'password.confirmed' => 'Konfirmasi password tidak sama',
             'nim_nip.required' => 'NIM / NIP wajib diisi',
             'nim_nip.unique' => 'NIM / NIP sudah terdaftar',

@@ -46,8 +46,8 @@ class AuthController extends Controller
         // Revoke all previous tokens for this user (single session)
         $user->tokens()->delete();
 
-        // Load roles
-        $user->load('roles');
+        // Load role
+        $user->load('role');
 
         // Create new token with expiration
         $token = $user->createToken(
@@ -141,7 +141,7 @@ class AuthController extends Controller
 
         // Cache data profil user (termasuk role) selama 1 jam
         $userData = Cache::remember("user_profile_{$user->id}", 3600, function () use ($user) {
-            $user->load('roles');
+            $user->load('role');
 
             return $this->formatUserResponse($user);
         });

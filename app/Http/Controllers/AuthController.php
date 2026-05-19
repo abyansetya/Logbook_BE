@@ -7,7 +7,6 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -137,19 +136,12 @@ class AuthController extends Controller
      */
     public function getMe(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        // Cache data profil user (termasuk role) selama 1 jam
-        $userData = Cache::remember("user_profile_{$user->id}", 3600, function () use ($user) {
-            $user->load('role');
-
-            return $this->formatUserResponse($user);
-        });
+        $user = $request->user()->loadMissing('role');
 
         return response()->json([
             'message' => 'Data user berhasil diambil',
             'data' => [
-                'user' => $userData,
+                'user' => $this->formatUserResponse($user),
             ],
         ]);
     }

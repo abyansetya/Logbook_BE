@@ -11,7 +11,7 @@ use App\Models\Role;
 use App\Models\Status;
 use App\Models\Unit;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -19,9 +19,11 @@ use Tests\TestCase;
 
 class BlackboxPdfTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private string $adminToken;
+
+    protected bool $seed = true;
 
     protected function setUp(): void
     {

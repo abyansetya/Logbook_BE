@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -72,6 +73,7 @@ class UnitController extends Controller
             $unit = Unit::create($validated);
 
             DB::commit();
+            Cache::forget('helper_units');
 
             return response()->json([
                 'success' => true,
@@ -118,6 +120,7 @@ class UnitController extends Controller
             $unit->update($validated);
 
             DB::commit();
+            Cache::forget('helper_units');
 
             return response()->json([
                 'success' => true,
@@ -155,6 +158,7 @@ class UnitController extends Controller
         try {
             $unit = Unit::findOrFail($id);
             $unit->delete();
+            Cache::forget('helper_units');
 
             return response()->json([
                 'success' => true,

@@ -43,6 +43,11 @@ class User extends Authenticatable
         return $this->hasMany(Log::class);
     }
 
+    public function dokumen()
+    {
+        return $this->hasMany(Dokumen::class);
+    }
+
     public function hasRole($roleName)
     {
         return $this->role && $this->role->nama === $roleName;

@@ -27,7 +27,7 @@ class LogbookController extends Controller
         try {
             $validated = $request->validated();
 
-            $dokumen = Dokumen::with('status')->findOrFail($validated['dokumen_id']);
+            $dokumen = Dokumen::with('status')->lockForUpdate()->findOrFail($validated['dokumen_id']);
             if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
                 return response()->json([
                     'success' => false,
@@ -37,8 +37,8 @@ class LogbookController extends Controller
 
             $log = Log::create([
                 'user_id' => $request->user()->id,
-                'mitra_id' => $validated['mitra_id'],
-                'dokumen_id' => $validated['dokumen_id'],
+                'mitra_id' => $dokumen->mitra_id,
+                'dokumen_id' => $dokumen->id,
                 'unit_id' => $validated['unit_id'],
                 'keterangan' => $validated['keterangan'],
                 'tanggal_log' => $validated['tanggal_log'],

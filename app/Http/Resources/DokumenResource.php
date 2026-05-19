@@ -33,9 +33,16 @@ class DokumenResource extends JsonResource
             'jenis_dokumen_id' => $this->jenis_dokumen_id,
             'status_id' => $this->status_id,
             'mitra_id' => $this->mitra_id,
+            'user_id' => $this->user_id,
 
             // Relasi Objek Lengkap (Hanya dikirim jika di-load di Controller)
             'mitra' => new MitraResource($this->whenLoaded('mitra')),
+            'created_by' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id ?? null,
+                    'nama' => $this->user->nama ?? 'Sistem',
+                ];
+            }),
 
             // Log Aktivitas (Hanya muncul di halaman detail)
             'logs' => LogResource::collection($this->whenLoaded('logs')),

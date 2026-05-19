@@ -26,6 +26,7 @@ class DashboardController
         try {
             // 1. Ambil SEMUA master status yang ada di database
             $allStatuses = Status::all();
+            $statusById = $allStatuses->keyBy('id');
 
             // Filter tahun
             $tahun = $request->query('tahun');
@@ -42,10 +43,10 @@ class DashboardController
                 ->select('status_id', DB::raw('count(*) as count'))
                 ->groupBy('status_id')
                 ->get()
-                ->map(function ($item) use ($totalDocs) {
+                ->map(function ($item) use ($totalDocs, $statusById) {
                     return [
                         'status_id' => $item->status_id,
-                        'status' => $item->status->nama ?? 'Unknown',
+                        'status' => $statusById->get($item->status_id)?->nama ?? 'Unknown',
                         'count' => $item->count,
                         'percentage' => $totalDocs > 0 ? round(($item->count / $totalDocs) * 100) : 0,
                     ];
@@ -53,45 +54,59 @@ class DashboardController
 
             // 3. Data Chart: Jenis Dokumen per Tahun
             $statusFilter = $request->query('status'); // Bisa berupa array ID atau 'all'
+            $yearExpression = DB::connection()->getDriverName() === 'sqlite'
+                ? "strftime('%Y', tanggal_dokumen)"
+                : 'YEAR(tanggal_dokumen)';
 
-            $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
-                ->selectRaw('YEAR(tanggal_dokumen) as year')
+            $chartYears = Dokumen::whereNotNull('tanggal_dokumen')
+                ->selectRaw("{$yearExpression} as year")
                 ->distinct()
                 ->orderBy('year', 'asc')
                 ->pluck('year');
 
-            $chartData = [];
-            foreach ($availableYears as $year) {
-                // Query dasar untuk tahun ini
-                $yearQuery = Dokumen::whereYear('tanggal_dokumen', $year);
-
-                // Terapkan filter status jika ada
-                if ($statusFilter && $statusFilter !== 'all') {
-                    if (is_array($statusFilter)) {
-                        $yearQuery->whereIn('status_id', $statusFilter);
-                    } else {
-                        // Jika dalam format comma-separated string
-                        $ids = explode(',', $statusFilter);
-                        $yearQuery->whereIn('status_id', $ids);
-                    }
-                }
-
-                $countsByType = (clone $yearQuery)
-                    ->select('jenis_dokumen_id', DB::raw('count(*) as total'))
-                    ->groupBy('jenis_dokumen_id')
-                    ->pluck('total', 'jenis_dokumen_id');
-
-                $chartData[] = [
-                    'year' => (string) $year,
-                    'MoU' => $countsByType[1] ?? 0,
-                    'MoA' => $countsByType[2] ?? 0,
-                    'IA' => $countsByType[3] ?? 0,
-                ];
+            if ($tahun && $tahun !== 'all') {
+                $chartYears = $chartYears->filter(fn ($year) => (string) $year === (string) $tahun)->values();
             }
+
+            $chartQuery = Dokumen::whereNotNull('tanggal_dokumen')
+                ->selectRaw("{$yearExpression} as year, jenis_dokumen_id, count(*) as total")
+                ->groupBy('year', 'jenis_dokumen_id')
+                ->orderBy('year', 'asc');
+
+            if ($tahun && $tahun !== 'all') {
+                $chartQuery->whereYear('tanggal_dokumen', $tahun);
+            }
+
+            if ($statusFilter && $statusFilter !== 'all') {
+                $statusIds = is_array($statusFilter) ? $statusFilter : explode(',', $statusFilter);
+                $statusIds = array_values(array_filter(array_map('intval', $statusIds)));
+
+                if (! empty($statusIds)) {
+                    $chartQuery->whereIn('status_id', $statusIds);
+                }
+            }
+
+            $countsByYear = $chartQuery->get()
+                ->groupBy(fn ($item) => (string) $item->year);
+
+            $chartData = $chartYears
+                ->map(function ($year) use ($countsByYear) {
+                    $countsByType = $countsByYear
+                        ->get((string) $year, collect())
+                        ->pluck('total', 'jenis_dokumen_id');
+
+                    return [
+                        'year' => (string) $year,
+                        'MoU' => $countsByType[1] ?? 0,
+                        'MoA' => $countsByType[2] ?? 0,
+                        'IA' => $countsByType[3] ?? 0,
+                    ];
+                })
+                ->values();
 
             // Ambil tahun yang tersedia
             $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
-                ->selectRaw('YEAR(tanggal_dokumen) as year')
+                ->selectRaw("{$yearExpression} as year")
                 ->distinct()
                 ->orderBy('year', 'desc')
                 ->pluck('year');

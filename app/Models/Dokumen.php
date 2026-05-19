@@ -13,6 +13,7 @@ class Dokumen extends Model
 
     protected $fillable = [
         'mitra_id',
+        'user_id',
         'jenis_dokumen_id',
         'nomor_dokumen_mitra',
         'nomor_dokumen_undip',
@@ -34,7 +35,12 @@ class Dokumen extends Model
 
     public function mitra()
     {
-        return $this->belongsTo(Mitra::class);
+        return $this->belongsTo(Mitra::class)->withTrashed();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function jenisDokumen()
@@ -44,7 +50,7 @@ class Dokumen extends Model
 
     public function status()
     {
-        return $this->belongsTo(Status::class);
+        return $this->belongsTo(Status::class)->withTrashed();
     }
 
     public function logs()

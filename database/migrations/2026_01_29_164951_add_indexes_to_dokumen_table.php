@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,8 +24,12 @@ return new class extends Migration
             $table->index('created_at');
             $table->index('tanggal_masuk');
 
-            // 4. (Opsional) Fulltext index jika ingin pencarian judul sangat cepat
-            $table->fullText('judul_dokumen');
+            // 4. Fulltext index untuk database produksi; SQLite test tidak mendukung fulltext index Laravel.
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->index('judul_dokumen');
+            } else {
+                $table->fullText('judul_dokumen');
+            }
         });
     }
 
@@ -38,7 +43,11 @@ return new class extends Migration
             $table->dropIndex(['jenis_dokumen_id']);
             $table->dropIndex(['created_at']);
             $table->dropIndex(['tanggal_masuk']);
-            $table->dropFullText(['judul_dokumen']);
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->dropIndex(['judul_dokumen']);
+            } else {
+                $table->dropFullText(['judul_dokumen']);
+            }
         });
     }
 };

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class addLogRequest extends FormRequest
 {
@@ -21,9 +22,9 @@ class addLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mitra_id' => 'required|exists:mitra,id',
+            'mitra_id' => ['nullable', 'integer'],
             'dokumen_id' => 'required|exists:dokumen,id',
-            'unit_id' => 'required|exists:unit,id',
+            'unit_id' => ['required', Rule::exists('unit', 'id')->whereNull('deleted_at')],
             'keterangan' => 'required|string|min:5',
             'tanggal_log' => 'required|date',
         ];
@@ -41,7 +42,6 @@ class addLogRequest extends FormRequest
             'keterangan.min' => 'Keterangan minimal berisi 5 karakter.',
             'unit_id.required' => 'Unit penginput harus diisi.',
             'unit_id.exists' => 'Unit yang dipilih tidak valid.',
-            'mitra_id.exists' => 'Mitra yang dipilih tidak valid.',
             'dokumen_id.exists' => 'Dokumen yang dipilih tidak valid.',
         ];
     }

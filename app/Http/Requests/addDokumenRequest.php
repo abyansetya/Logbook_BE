@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class addDokumenRequest extends FormRequest
 {
@@ -32,9 +33,9 @@ class addDokumenRequest extends FormRequest
     {
 
         return [
-            'mitra_id' => ['required', 'exists:mitra,id'],
+            'mitra_id' => ['required', Rule::exists('mitra', 'id')->whereNull('deleted_at')],
             'jenis_dokumen_id' => ['required', 'exists:jenis_dokumen,id'],
-            'status_id' => ['required', 'exists:status,id'],
+            'status_id' => ['required', Rule::exists('status', 'id')->whereNull('deleted_at')],
             'nomor_dokumen_mitra' => [
                 'nullable',
                 'string',
@@ -49,9 +50,11 @@ class addDokumenRequest extends FormRequest
             ],
             'judul_dokumen' => ['required', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],
+            'tanggal_dokumen' => ['nullable', 'date'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
             'draft_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'final_dokumen' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
         ];
     }
 
@@ -70,6 +73,7 @@ class addDokumenRequest extends FormRequest
             'judul_dokumen.required' => 'Judul dokumen wajib diisi.',
             'judul_dokumen.max' => 'Judul dokumen maksimal 255 karakter.',
             'contact_person.max' => 'Nama contact person maksimal 255 karakter.',
+            'tanggal_dokumen.date' => 'Format tanggal dokumen tidak valid.',
             'tanggal_masuk.date' => 'Format tanggal masuk tidak valid.',
             'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
             'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',
@@ -79,6 +83,9 @@ class addDokumenRequest extends FormRequest
             'draft_dokumen.file' => 'Draft dokumen harus berupa file.',
             'draft_dokumen.mimes' => 'Draft dokumen harus berformat PDF.',
             'draft_dokumen.max' => 'Ukuran draft dokumen maksimal 2MB.',
+            'final_dokumen.file' => 'Dokumen final harus berupa file.',
+            'final_dokumen.mimes' => 'Dokumen final harus berformat PDF.',
+            'final_dokumen.max' => 'Ukuran dokumen final maksimal 2MB.',
         ];
     }
 }

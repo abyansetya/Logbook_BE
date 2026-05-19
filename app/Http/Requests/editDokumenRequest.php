@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 class editDokumenRequest extends FormRequest
 {
@@ -39,15 +40,57 @@ class editDokumenRequest extends FormRequest
         }
 
         return [
-            'mitra_id' => ['required', 'exists:mitra,id'],
+            'mitra_id' => [
+                'required',
+                function ($attribute, $value, $fail) use ($id) {
+                    $isCurrentValue = DB::table('dokumen')
+                        ->where('id', $id)
+                        ->where('mitra_id', $value)
+                        ->exists();
+
+                    if ($isCurrentValue) {
+                        return;
+                    }
+
+                    $isActiveMitra = DB::table('mitra')
+                        ->where('id', $value)
+                        ->whereNull('deleted_at')
+                        ->exists();
+
+                    if (! $isActiveMitra) {
+                        $fail('Mitra yang dipilih tidak valid.');
+                    }
+                },
+            ],
             'jenis_dokumen_id' => ['required', 'exists:jenis_dokumen,id'],
-            'status_id' => ['required', 'exists:status,id'],
+            'status_id' => [
+                'required',
+                function ($attribute, $value, $fail) use ($id) {
+                    $isCurrentValue = DB::table('dokumen')
+                        ->where('id', $id)
+                        ->where('status_id', $value)
+                        ->exists();
+
+                    if ($isCurrentValue) {
+                        return;
+                    }
+
+                    $isActiveStatus = DB::table('status')
+                        ->where('id', $value)
+                        ->whereNull('deleted_at')
+                        ->exists();
+
+                    if (! $isActiveStatus) {
+                        $fail('Status tidak valid.');
+                    }
+                },
+            ],
             'nomor_dokumen_mitra' => [
                 'nullable',
                 'string',
                 'max:255',
                 function ($attribute, $value, $fail) use ($id) {
-                    $exists = \Illuminate\Support\Facades\DB::table('dokumen')
+                    $exists = DB::table('dokumen')
                         ->where('nomor_dokumen_mitra', $value)
                         ->where('id', '<>', $id)
                         ->exists();
@@ -61,7 +104,7 @@ class editDokumenRequest extends FormRequest
                 'string',
                 'max:255',
                 function ($attribute, $value, $fail) use ($id) {
-                    $exists = \Illuminate\Support\Facades\DB::table('dokumen')
+                    $exists = DB::table('dokumen')
                         ->where('nomor_dokumen_undip', $value)
                         ->where('id', '<>', $id)
                         ->exists();
@@ -72,6 +115,7 @@ class editDokumenRequest extends FormRequest
             ],
             'judul_dokumen' => ['required', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],
+            'tanggal_dokumen' => ['nullable', 'date'],
             'tanggal_masuk' => ['nullable', 'date'],
             'tanggal_terbit' => ['nullable', 'date'],
             'draft_dokumen' => $this->hasFile('draft_dokumen') ? ['file', 'mimes:pdf', 'max:2048'] : ['nullable', 'string'],
@@ -100,6 +144,7 @@ class editDokumenRequest extends FormRequest
             'judul_dokumen.required' => 'Judul dokumen wajib diisi.',
             'judul_dokumen.max' => 'Judul dokumen maksimal 255 karakter.',
             'contact_person.max' => 'Nama contact person maksimal 255 karakter.',
+            'tanggal_dokumen.date' => 'Format tanggal dokumen tidak valid.',
             'tanggal_masuk.date' => 'Format tanggal masuk tidak valid.',
             'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
             'nomor_dokumen_mitra.max' => 'Nomor dokumen mitra maksimal 255 karakter.',

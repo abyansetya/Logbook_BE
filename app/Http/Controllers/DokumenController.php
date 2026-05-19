@@ -19,7 +19,7 @@ class DokumenController extends Controller
     /**
      * List documents with filtering and search capabilities.
      *
-     * @param  Request  $request  Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
+     * @param  Request  $request  Filter parameters (q, status, jenis_dokumen, tahun, bulan, per_page, order).
      * @return JsonResponse Paginated list of documents.
      */
     public function getDokumen(Request $request): JsonResponse
@@ -27,6 +27,7 @@ class DokumenController extends Controller
         try {
             $query = Dokumen::with([
                 'mitra',
+                'user',
                 'jenisDokumen',
                 'status',
             ]);
@@ -50,6 +51,13 @@ class DokumenController extends Controller
 
             if ($request->has('tahun') && $request->query('tahun') !== 'all') {
                 $query->whereYear('tanggal_dokumen', $request->query('tahun'));
+            }
+
+            if ($request->has('bulan') && $request->query('bulan') !== 'all') {
+                $bulan = (int) $request->query('bulan');
+                if ($bulan >= 1 && $bulan <= 12) {
+                    $query->whereMonth('tanggal_dokumen', $bulan);
+                }
             }
 
             $perPage = min((int) $request->input('per_page', 10), 100);
@@ -85,6 +93,7 @@ class DokumenController extends Controller
             $dokumen = Dokumen::with([
                 'logs' => fn ($q) => $q->orderBy('tanggal_log', 'asc'),
                 'logs.user',
+                'user',
                 'jenisDokumen',
                 'status',
             ])->findOrFail($id);
@@ -114,12 +123,14 @@ class DokumenController extends Controller
 
             $dokumen = Dokumen::create([
                 'mitra_id' => $validated['mitra_id'],
+                'user_id' => $request->user()->id,
                 'jenis_dokumen_id' => $validated['jenis_dokumen_id'],
                 'status_id' => $validated['status_id'],
                 'judul_dokumen' => $validated['judul_dokumen'],
                 'contact_person' => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
+                'tanggal_dokumen' => $validated['tanggal_dokumen'] ?? null,
                 'tanggal_masuk' => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
                 'tanggal_terbit' => $validated['tanggal_terbit'] ?? null,
             ]);
@@ -130,7 +141,13 @@ class DokumenController extends Controller
                 $dokumen->update(['draft_dokumen' => $path]);
             }
 
-            $dokumen->load(['mitra', 'jenisDokumen', 'status']);
+            if ($request->hasFile('final_dokumen')) {
+                $file = $request->file('final_dokumen');
+                $path = $file->storeAs('dokumen/final', $file->hashName(), 'public');
+                $dokumen->update(['final_dokumen' => $path]);
+            }
+
+            $dokumen->load(['mitra', 'user', 'jenisDokumen', 'status']);
 
             DB::commit();
 
@@ -183,6 +200,7 @@ class DokumenController extends Controller
                 'contact_person' => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
+                'tanggal_dokumen' => $validated['tanggal_dokumen'] ?? null,
                 'tanggal_masuk' => $validated['tanggal_masuk'],
                 'tanggal_terbit' => $validated['tanggal_terbit'] ?? null,
             ]);
@@ -215,7 +233,7 @@ class DokumenController extends Controller
                 $dokumen->update(['final_dokumen' => null]);
             }
 
-            $dokumen->load(['mitra', 'jenisDokumen', 'status']);
+            $dokumen->load(['mitra', 'user', 'jenisDokumen', 'status']);
 
             DB::commit();
 
@@ -264,7 +282,7 @@ class DokumenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Dokumen berhasil dihapus permanen',
+                'message' => 'Dokumen berhasil dihapus',
             ], 200);
 
         } catch (\Exception $e) {
@@ -293,6 +311,7 @@ class DokumenController extends Controller
             }
 
             $dokumens = Dokumen::where('judul_dokumen', 'LIKE', "%{$query}%")
+                ->with('user')
                 ->limit(10)
                 ->get();
 
@@ -319,7 +338,7 @@ class DokumenController extends Controller
     public function exportDokumen(Request $request)
     {
         try {
-            $query = Dokumen::with(['mitra.klasifikasiMitra', 'jenisDokumen', 'status', 'logs.user']);
+            $query = Dokumen::with(['mitra.klasifikasiMitra', 'user', 'jenisDokumen', 'status', 'logs.user']);
 
             if ($request->has('q')) {
                 $search = $request->query('q');
@@ -340,6 +359,13 @@ class DokumenController extends Controller
 
             if ($request->has('tahun') && $request->query('tahun') !== 'all') {
                 $query->whereYear('tanggal_dokumen', $request->query('tahun'));
+            }
+
+            if ($request->has('bulan') && $request->query('bulan') !== 'all') {
+                $bulan = (int) $request->query('bulan');
+                if ($bulan >= 1 && $bulan <= 12) {
+                    $query->whereMonth('tanggal_dokumen', $bulan);
+                }
             }
 
             $order = in_array($request->query('order', 'desc'), ['asc', 'desc'])

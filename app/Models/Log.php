@@ -27,7 +27,7 @@ class Log extends Model
 
     public function mitra()
     {
-        return $this->belongsTo(Mitra::class);
+        return $this->belongsTo(Mitra::class)->withTrashed();
     }
 
     public function dokumen()
@@ -37,6 +37,6 @@ class Log extends Model
 
     public function unit()
     {
-        return $this->belongsTo(Unit::class);
+        return $this->belongsTo(Unit::class)->withTrashed();
     }
 }

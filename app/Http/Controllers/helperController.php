@@ -93,6 +93,7 @@ class HelperController extends Controller
             ]);
 
             DB::commit();
+            Cache::forget('helper_recent_activities');
 
             return response()->json([
                 'success' => true,
@@ -119,10 +120,12 @@ class HelperController extends Controller
     {
         try {
             // Mengambil 5 aktivitas terbaru dengan relasi user
-            $activities = ActivityLogs::with('user:id,nama')
-                ->latest()
-                ->limit(5)
-                ->get();
+            $activities = Cache::remember('helper_recent_activities', 30, function () {
+                return ActivityLogs::with('user:id,nama')
+                    ->latest()
+                    ->limit(5)
+                    ->get();
+            });
 
             return response()->json([
                 'success' => true,

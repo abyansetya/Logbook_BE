@@ -121,6 +121,7 @@ class DokumenController extends Controller
                 'contact_person'      => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
+                'tanggal_dokumen'     => $validated['tanggal_dokumen'] ?? null,
                 'tanggal_masuk'       => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
                 'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
             ]);
@@ -183,6 +184,7 @@ class DokumenController extends Controller
                 'contact_person'      => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
+                'tanggal_dokumen'     => $validated['tanggal_dokumen'] ?? null,
                 'tanggal_masuk'       => $validated['tanggal_masuk'],
                 'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
             ]);
@@ -368,7 +370,7 @@ class DokumenController extends Controller
                         foreach ($logs as $log) {
                             $sheet->setCellValue('D' . $row, $log->tanggal_log);
                             $sheet->setCellValue('E' . $row, $log->keterangan);
-                            $sheet->setCellValue('F' . $row, $log->contact_person);
+                            $sheet->setCellValue('F' . $row, $dokumen->contact_person ?? '-');
                             $row++;
                         }
                     } else {

@@ -299,6 +299,7 @@ class MitraController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255|unique:mitra,nama',
+            'klasifikasi_mitra_id' => 'nullable|exists:klasifikasi_mitra,id',
         ]);
 
         try {
@@ -306,7 +307,7 @@ class MitraController extends Controller
 
             $mitra = Mitra::create([
                 'nama' => $request->input('nama'),
-                'klasifikasi_mitra_id' => 16,
+                'klasifikasi_mitra_id' => $request->input('klasifikasi_mitra_id', 16),
                 'status' => $status
             ]);
 

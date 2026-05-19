@@ -20,7 +20,6 @@ class updateLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'        => 'required|exists:users,id',
             'unit_id'        => 'nullable|exists:unit,id',
             'keterangan'     => 'required|string|min:5',
             'tanggal_log'    => 'required|date',
@@ -33,8 +32,6 @@ class updateLogRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required'        => 'Admin penginput harus diisi.',
-            'user_id.exists'          => 'Admin yang dipilih tidak valid.',
             'keterangan.required'     => 'Kolom keterangan wajib diisi.',
             'keterangan.min'          => 'Keterangan terlalu singkat, minimal 5 karakter.',
             'tanggal_log.required'    => 'Tanggal log wajib diisi.',

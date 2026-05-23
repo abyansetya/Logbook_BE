@@ -17,15 +17,10 @@ use Illuminate\Support\Facades\Log;
 class RegisterController extends Controller
 {
     /**
-     * Token expiration in minutes (24 hours)
-     */
-    private const TOKEN_EXPIRATION_MINUTES = 60 * 24;
-
-    /**
      * Register a new user in the system.
      *
      * @param RegisterRequest $request Validated registration data.
-     * @return JsonResponse Response containing the new user data and authentication token.
+     * @return JsonResponse Response containing the new pending user data.
      * @throws \RuntimeException If the default viewer role is missing.
      */
     public function submitRegister(RegisterRequest $request): JsonResponse
@@ -41,13 +36,14 @@ class RegisterController extends Controller
                 'email' => $validated['email'],
                 'password' => $validated['password'], // Will be hashed by 'hashed' cast
                 'nim_nip' => $validated['nim_nip'],
+                'account_status' => 'pending',
             ]);
 
             // Attach default role: viewer
-            $viewerRole = Role::where('nama', 'viewer')->first();
+            $viewerRole = Role::where('nama', 'Viewer')->first();
 
             if (!$viewerRole) {
-                throw new \RuntimeException('Default role "viewer" not found in database');
+                throw new \RuntimeException('Default role "Viewer" not found in database');
             }
 
             $user->roles()->attach($viewerRole->id);
@@ -55,24 +51,14 @@ class RegisterController extends Controller
             // Load roles for response
             $user->load('roles');
 
-            // Create token with abilities and expiration
-            $token = $user->createToken(
-                'auth_token',
-                ['*'], // abilities
-                now()->addMinutes(self::TOKEN_EXPIRATION_MINUTES)
-            )->plainTextToken;
-
             DB::commit();
 
             Log::info('User registered successfully', ['user_id' => $user->id, 'email' => $user->email]);
 
             return response()->json([
-                'message' => 'Registrasi berhasil',
+                'message' => 'Registrasi berhasil. Akun Anda menunggu persetujuan admin.',
                 'data' => [
                     'user' => $this->formatUserResponse($user),
-                    'token' => $token,
-                    'token_type' => 'Bearer',
-                    'expires_in' => self::TOKEN_EXPIRATION_MINUTES * 60, // in seconds
                 ],
             ], 201);
 
@@ -109,6 +95,7 @@ class RegisterController extends Controller
             'nama' => $user->nama,
             'email' => $user->email,
             'nim_nip' => $user->nim_nip,
+            'account_status' => $user->account_status,
             'roles' => $user->roles->pluck('nama')->toArray(),
             'created_at' => $user->created_at->toISOString(),
             'updated_at' => $user->updated_at->toISOString(),

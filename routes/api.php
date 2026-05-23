@@ -47,6 +47,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('users')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [\App\Http\Controllers\UserController::class, 'getUsers'])->name('users.index');
         Route::put('/{id}/role', [\App\Http\Controllers\UserController::class, 'updateUserRole'])->name('users.update-role');
+        Route::put('/{id}/approve', [\App\Http\Controllers\UserController::class, 'approveUser'])->name('users.approve');
+        Route::put('/{id}/reject', [\App\Http\Controllers\UserController::class, 'rejectUser'])->name('users.reject');
         Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'deleteUser'])->name('users.destroy');
         Route::get('/search', [\App\Http\Controllers\UserController::class, 'searchUser'])->name('users.search')->middleware('role:Admin');
     });

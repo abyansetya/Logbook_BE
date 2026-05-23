@@ -45,6 +45,23 @@ class AuthController extends Controller
             ], 401);
         }
 
+        if ($user->account_status !== 'approved') {
+            Log::warning('Blocked login for unapproved account', [
+                'user_id' => $user->id,
+                'account_status' => $user->account_status,
+            ]);
+
+            $message = match ($user->account_status) {
+                'pending' => 'Akun Anda masih menunggu persetujuan admin',
+                'rejected' => 'Registrasi akun Anda ditolak admin',
+                default => 'Akun Anda belum aktif',
+            };
+
+            return response()->json([
+                'message' => $message,
+            ], 403);
+        }
+
         // Revoke all previous tokens for this user (single session)
         $user->tokens()->delete();
 
@@ -212,6 +229,7 @@ class AuthController extends Controller
             'nama' => $user->nama,
             'email' => $user->email,
             'nim_nip' => $user->nim_nip,
+            'account_status' => $user->account_status,
             'roles' => $user->roles->pluck('nama')->toArray(),
             'created_at' => $user->created_at->toISOString(),
             'updated_at' => $user->updated_at->toISOString(),

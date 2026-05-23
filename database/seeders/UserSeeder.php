@@ -20,18 +20,21 @@ class UserSeeder extends Seeder
                 'nama' => 'Admin User',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password123'),
+                'account_status' => 'approved',
             ],           
             [
                 'id' => 2,
                 'nama' => 'Operator User',
                 'email' => 'operator@example.com',
                 'password' => Hash::make('password123'),
+                'account_status' => 'approved',
             ],
             [
                 'id' => 3,
                 'nama' => 'Viewer User',
                 'email' => 'viewer@example.com',
                 'password' => Hash::make('password123'),
+                'account_status' => 'approved',
             ],
         ];
 

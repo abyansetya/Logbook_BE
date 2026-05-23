@@ -40,6 +40,7 @@ class UserController extends Controller
                     'nama' => $user->nama,
                     'email' => $user->email,
                     'nim_nip' => $user->nim_nip,
+                    'account_status' => $user->account_status,
                     'roles' => $user->roles->pluck('nama'), // Send array of role names
                     'created_at' => $user->created_at,
                 ];
@@ -67,6 +68,12 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
         $newRoleName = $request->role; // 'admin' or 'viewer'
+
+        if ($user->account_status !== 'approved') {
+            return response()->json([
+                'message' => 'Role hanya dapat diubah untuk akun yang sudah disetujui',
+            ], 422);
+        }
 
         // Prevent admin from removing their own admin role IF they are the only admin (optional safety)
         // For simplicity, we just allow it but log it.
@@ -105,6 +112,72 @@ class UserController extends Controller
             return response()->json(['message' => 'Gagal memperbarui role'], 500);
         }
     }
+
+    /**
+     * Approve a pending user account so they can login.
+     *
+     * @param Request $request Source admin request.
+     * @param int|string $id Target user ID.
+     * @return JsonResponse Updated account status.
+     */
+    public function approveUser(Request $request, $id): JsonResponse
+    {
+        if (!$request->user()->hasRole('Admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::with('roles')->findOrFail($id);
+
+        $user->update(['account_status' => 'approved']);
+        Cache::forget("user_profile_{$id}");
+
+        Log::info('User account approved', [
+            'admin_id' => $request->user()->id,
+            'target_user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun pengguna berhasil disetujui',
+            'data' => $this->formatUser($user->fresh('roles')),
+        ]);
+    }
+
+    /**
+     * Reject a user account and revoke existing tokens.
+     *
+     * @param Request $request Source admin request.
+     * @param int|string $id Target user ID.
+     * @return JsonResponse Updated account status.
+     */
+    public function rejectUser(Request $request, $id): JsonResponse
+    {
+        if (!$request->user()->hasRole('Admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::with('roles')->findOrFail($id);
+
+        if ($user->id === $request->user()->id) {
+            return response()->json(['message' => 'Tidak dapat menolak akun sendiri'], 400);
+        }
+
+        $user->update(['account_status' => 'rejected']);
+        $user->tokens()->delete();
+        Cache::forget("user_profile_{$id}");
+
+        Log::info('User account rejected', [
+            'admin_id' => $request->user()->id,
+            'target_user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun pengguna berhasil ditolak',
+            'data' => $this->formatUser($user->fresh('roles')),
+        ]);
+    }
+
     /**
      * Permanently remove a user account and detach their roles.
      *
@@ -183,6 +256,8 @@ class UserController extends Controller
 
             $users = User::with('roles')
                 ->where('nama', 'LIKE', "%{$query}%")
+                ->orWhere('email', 'LIKE', "%{$query}%")
+                ->orWhere('nim_nip', 'LIKE', "%{$query}%")
                 ->limit(10)
                 ->get();
 
@@ -198,5 +273,19 @@ class UserController extends Controller
                 'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
+    }
+
+    private function formatUser(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'nama' => $user->nama,
+            'email' => $user->email,
+            'nim_nip' => $user->nim_nip,
+            'account_status' => $user->account_status,
+            'roles' => $user->roles->pluck('nama'),
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ];
     }
 }

@@ -25,7 +25,15 @@ class RegisterRequest extends FormRequest
             'nama' => 'required|string|max:255',
             'nim_nip' => ['required', 'string', 'max:50', 'unique:users,nim_nip'],
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&#^()_\-+=]/',
+            ],
             'password_confirmation' => 'required|string|min:8',
         ];
     }
@@ -44,6 +52,7 @@ class RegisterRequest extends FormRequest
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak sama',
+            'password.regex' => 'Password harus mengandung minimal 1 huruf besar, 1 angka, dan 1 karakter khusus (@$!%*?&#^()_-+=)',
             'nim_nip.required' => 'NIM / NIP wajib diisi',
             'nim_nip.unique' => 'NIM / NIP sudah terdaftar',
         ];

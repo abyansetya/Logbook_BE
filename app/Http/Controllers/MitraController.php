@@ -139,11 +139,23 @@ class MitraController extends Controller
                 ], 404);
             }
 
-            $mitra->update($request->only(['nama', 'klasifikasi_mitra_id', 'alamat', 'contact_person']));
+            $data = $request->only(['nama', 'klasifikasi_mitra_id', 'alamat', 'contact_person']);
+
+            if (
+                $request->user()
+                && $request->user()->hasRole('Operator')
+                && !$request->user()->hasRole('Admin')
+            ) {
+                $data['status'] = 'pending';
+            }
+
+            $mitra->update($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mitra berhasil diperbarui',
+                'message' => $mitra->status === 'pending'
+                    ? 'Mitra berhasil diperbarui dan menunggu persetujuan admin'
+                    : 'Mitra berhasil diperbarui',
                 'data' => $mitra
             ]);
         } catch (\Exception $e) {

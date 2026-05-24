@@ -32,26 +32,7 @@ class DokumenController extends Controller
                 'status'
             ]);
 
-            if ($request->has('q')) {
-                $search = $request->query('q');
-                $query->where(function ($q) use ($search) {
-                    $q->where('judul_dokumen', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
-                });
-            }
-
-            if ($request->has('status') && $request->query('status') !== 'all') {
-                $query->where('status_id', $request->query('status'));
-            }
-
-            if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
-                $query->where('jenis_dokumen_id', $request->query('jenis_dokumen'));
-            }
-
-            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
-                $query->whereYear('tanggal_dokumen', $request->query('tahun'));
-            }
+            $this->applyDokumenFilters($query, $request);
 
             $perPage = min((int) $request->input('per_page', 10), 100);
             $order = in_array($request->query('order', 'desc'), ['asc', 'desc'])
@@ -306,26 +287,7 @@ class DokumenController extends Controller
         try {
             $query = Dokumen::with(['mitra.klasifikasiMitra', 'jenisDokumen', 'status', 'logs.user']);
 
-            if ($request->has('q')) {
-                $search = $request->query('q');
-                $query->where(function ($q) use ($search) {
-                    $q->where('judul_dokumen', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
-                      ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
-                });
-            }
-
-            if ($request->has('status') && $request->query('status') !== 'all') {
-                $query->where('status_id', $request->query('status'));
-            }
-
-            if ($request->has('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
-                $query->where('jenis_dokumen_id', $request->query('jenis_dokumen'));
-            }
-
-            if ($request->has('tahun') && $request->query('tahun') !== 'all') {
-                $query->whereYear('tanggal_dokumen', $request->query('tahun'));
-            }
+            $this->applyDokumenFilters($query, $request);
 
             $order = in_array($request->query('order', 'desc'), ['asc', 'desc'])
                 ? $request->query('order', 'desc')
@@ -435,6 +397,30 @@ class DokumenController extends Controller
                 'message' => 'Gagal export data',
                 'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
+        }
+    }
+
+    private function applyDokumenFilters($query, Request $request): void
+    {
+        if ($request->filled('q')) {
+            $search = $request->query('q');
+            $query->where(function ($q) use ($search) {
+                $q->where('judul_dokumen', 'LIKE', "%{$search}%")
+                  ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
+                  ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->query('status') !== 'all') {
+            $query->where('status_id', $request->query('status'));
+        }
+
+        if ($request->filled('jenis_dokumen') && $request->query('jenis_dokumen') !== 'all') {
+            $query->where('jenis_dokumen_id', $request->query('jenis_dokumen'));
+        }
+
+        if ($request->filled('tahun') && $request->query('tahun') !== 'all') {
+            $query->whereYear('tanggal_dokumen', $request->query('tahun'));
         }
     }
 }

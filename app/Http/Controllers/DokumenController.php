@@ -300,8 +300,8 @@ class DokumenController extends Controller
             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
 
-            $headers       = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
-            $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            $headers       = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal Dokumen', 'Tanggal Masuk', 'Tanggal Terbit', 'Tanggal Log', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
+            $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
 
             foreach ($headers as $index => $header) {
                 $sheet->setCellValue($columnLetters[$index] . '1', $header);
@@ -330,9 +330,9 @@ class DokumenController extends Controller
 
                     if ($logs->count() > 0) {
                         foreach ($logs as $log) {
-                            $sheet->setCellValue('D' . $row, $log->tanggal_log);
-                            $sheet->setCellValue('E' . $row, $log->keterangan);
-                            $sheet->setCellValue('F' . $row, $dokumen->contact_person ?? '-');
+                            $sheet->setCellValue('G' . $row, $log->tanggal_log);
+                            $sheet->setCellValue('H' . $row, $log->keterangan);
+                            $sheet->setCellValue('I' . $row, $dokumen->contact_person ?? '-');
                             $row++;
                         }
                     } else {
@@ -343,17 +343,23 @@ class DokumenController extends Controller
 
                     if ($dokumenEndRow > $dokumenStartRow) {
                         $sheet->mergeCells("C{$dokumenStartRow}:C{$dokumenEndRow}");
-                        $sheet->mergeCells("G{$dokumenStartRow}:G{$dokumenEndRow}");
-                        $sheet->mergeCells("H{$dokumenStartRow}:H{$dokumenEndRow}");
-                        $sheet->mergeCells("I{$dokumenStartRow}:I{$dokumenEndRow}");
+                        $sheet->mergeCells("D{$dokumenStartRow}:D{$dokumenEndRow}");
+                        $sheet->mergeCells("E{$dokumenStartRow}:E{$dokumenEndRow}");
+                        $sheet->mergeCells("F{$dokumenStartRow}:F{$dokumenEndRow}");
+                        $sheet->mergeCells("J{$dokumenStartRow}:J{$dokumenEndRow}");
+                        $sheet->mergeCells("K{$dokumenStartRow}:K{$dokumenEndRow}");
+                        $sheet->mergeCells("L{$dokumenStartRow}:L{$dokumenEndRow}");
                     }
 
                     $sheet->setCellValue('C' . $dokumenStartRow, $dokumen->judul_dokumen);
-                    $sheet->setCellValue('G' . $dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
-                    $sheet->setCellValue('H' . $dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
-                    $sheet->getStyle('G' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-                    $sheet->getStyle('H' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-                    $sheet->setCellValue('I' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
+                    $sheet->setCellValue('D' . $dokumenStartRow, $dokumen->tanggal_dokumen ?? '-');
+                    $sheet->setCellValue('E' . $dokumenStartRow, $dokumen->tanggal_masuk ?? '-');
+                    $sheet->setCellValue('F' . $dokumenStartRow, $dokumen->tanggal_terbit ?? '-');
+                    $sheet->setCellValue('J' . $dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
+                    $sheet->setCellValue('K' . $dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
+                    $sheet->getStyle('J' . $dokumenStartRow)->getAlignment()->setWrapText(true);
+                    $sheet->getStyle('K' . $dokumenStartRow)->getAlignment()->setWrapText(true);
+                    $sheet->setCellValue('L' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
                 }
 
                 $mitraEndRow = $row - 1;
@@ -361,7 +367,7 @@ class DokumenController extends Controller
                 if ($mitraEndRow > $mitraStartRow) {
                     $sheet->mergeCells("A{$mitraStartRow}:A{$mitraEndRow}");
                     $sheet->mergeCells("B{$mitraStartRow}:B{$mitraEndRow}");
-                    $sheet->mergeCells("J{$mitraStartRow}:J{$mitraEndRow}");
+                    $sheet->mergeCells("M{$mitraStartRow}:M{$mitraEndRow}");
                 }
 
                 $sheet->setCellValue('A' . $mitraStartRow, $no++);
@@ -371,10 +377,10 @@ class DokumenController extends Controller
                 if ($docs->first()->mitra && $docs->first()->mitra->klasifikasiMitra) {
                     $kriteria = $docs->first()->mitra->klasifikasiMitra->nama;
                 }
-                $sheet->setCellValue('J' . $mitraStartRow, $kriteria);
+                $sheet->setCellValue('M' . $mitraStartRow, $kriteria);
             }
 
-            $sheet->getStyle('A1:J' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A1:M' . ($row - 1))->applyFromArray([
                 'borders' => [
                     'allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
                 ],

@@ -150,6 +150,15 @@ class StatusController extends Controller
     {
         try {
             $status = Status::findOrFail($id);
+
+            $usedByDokumenCount = $status->dokumen()->count();
+            if ($usedByDokumenCount > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Status tidak dapat dihapus karena masih digunakan oleh {$usedByDokumenCount} dokumen",
+                ], 409);
+            }
+
             $status->delete();
 
             return response()->json([
@@ -159,7 +168,8 @@ class StatusController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus status'
+                'message' => 'Gagal menghapus status',
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
             ], 500);
         }
     }

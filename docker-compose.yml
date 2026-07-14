@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: logbook-postgres
+    environment:
+      POSTGRES_DB: logbook
+      POSTGRES_USER: logbook_user
+      POSTGRES_PASSWORD: logbook_password
+    ports:
+      - "15432:5432"
+    volumes:
+      - logbook_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  logbook_postgres_data:
+    external: true

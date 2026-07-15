@@ -1,16 +1,36 @@
 services:
+  app:
+    build: .
+    container_name: logbook-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+    depends_on:
+      - postgres
   postgres:
     image: postgres:16
     container_name: logbook-postgres
     environment:
-      POSTGRES_DB: logbook
-      POSTGRES_USER: logbook_user
-      POSTGRES_PASSWORD: logbook_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "15432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - logbook_postgres_data:/var/lib/postgresql/data
-
+  adminer:
+    image: adminer
+    ports:
+      - "${ADMINER_PORT}:8080"
+    depends_on:
+      - postgres
 volumes:
   logbook_postgres_data:
     external: true

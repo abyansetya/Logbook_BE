@@ -1,22 +1,30 @@
 services:
   app:
     build: .
-    container_name: logbook-app
+    restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
       - ./:/var/www/html
+      - logbook_vendor:/var/www/html/vendor
     environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
+      DB_DATABASE: ${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       SESSION_DRIVER: file
       CACHE_STORE: file
       QUEUE_CONNECTION: sync
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
   postgres:
     image: postgres:16
-    container_name: logbook-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -25,12 +33,21 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - logbook_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   adminer:
     image: adminer
+    restart: unless-stopped
     ports:
       - "${ADMINER_PORT}:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 volumes:
   logbook_postgres_data:
     external: true
+  logbook_vendor:

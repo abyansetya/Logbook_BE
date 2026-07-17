@@ -20,4 +20,4 @@ RUN mkdir -p storage/framework/cache/data \
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"] 
+CMD ["sh", "-c", "cd public && php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]

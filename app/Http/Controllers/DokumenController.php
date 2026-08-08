@@ -142,19 +142,19 @@ class DokumenController extends Controller
      */
     public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
     {
+        $dokumen = Dokumen::with('status')->findOrFail($id);
+
+        if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
+            if (!$request->user()->hasRole('Admin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit'
+                ], 403);
+            }
+        }
+
         DB::beginTransaction();
         try {
-            $dokumen = Dokumen::with('status')->findOrFail($id);
-
-            if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
-                if (!$request->user()->hasRole('Admin')) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit'
-                    ], 403);
-                }
-            }
-
             $validated = $request->validated();
 
             $dokumen->update([
@@ -166,7 +166,7 @@ class DokumenController extends Controller
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
                 'tanggal_dokumen'     => $validated['tanggal_dokumen'] ?? null,
-                'tanggal_masuk'       => $validated['tanggal_masuk'],
+                'tanggal_masuk'       => $validated['tanggal_masuk'] ?? $dokumen->tanggal_masuk,
                 'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
             ]);
 

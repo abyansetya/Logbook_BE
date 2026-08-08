@@ -27,19 +27,29 @@ class UserFactory extends Factory
             'nama' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'nim_nip' => (string) fake()->unique()->numberBetween(100000, 999999),
-            'email_verified_at' => now(),
+            'account_status' => 'approved',
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indicate that the user's account is awaiting admin approval.
      */
-    public function unverified(): static
+    public function pending(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'account_status' => 'pending',
+        ]);
+    }
+
+    /**
+     * Indicate that the user's account was rejected by an admin.
+     */
+    public function rejected(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_status' => 'rejected',
         ]);
     }
 }

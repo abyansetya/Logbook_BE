@@ -54,9 +54,14 @@ class DashboardController
 
             // 3. Data Chart: Jenis Dokumen per Tahun
             $statusFilter = $request->query('status'); // Bisa berupa array ID atau 'all'
-            
+
+            // Ekspresi tahun yang kompatibel antar database (SQLite vs MySQL/PostgreSQL)
+            $yearExpression = DB::connection()->getDriverName() === 'sqlite'
+                ? "strftime('%Y', tanggal_dokumen) as year"
+                : 'YEAR(tanggal_dokumen) as year';
+
             $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
-                ->selectRaw('YEAR(tanggal_dokumen) as year')
+                ->selectRaw($yearExpression)
                 ->distinct()
                 ->orderBy('year', 'asc')
                 ->pluck('year');
@@ -92,7 +97,7 @@ class DashboardController
 
             // Ambil tahun yang tersedia
             $availableYears = Dokumen::whereNotNull('tanggal_dokumen')
-                ->selectRaw('YEAR(tanggal_dokumen) as year')
+                ->selectRaw($yearExpression)
                 ->distinct()
                 ->orderBy('year', 'desc')
                 ->pluck('year');

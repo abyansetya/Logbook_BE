@@ -24,7 +24,10 @@ return new class extends Migration
             $table->index('tanggal_masuk');
             
             // 4. (Opsional) Fulltext index jika ingin pencarian judul sangat cepat
-             $table->fullText('judul_dokumen');
+            // Catatan: hanya didukung MySQL/PostgreSQL, bukan SQLite (dipakai saat testing)
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->fullText('judul_dokumen');
+            }
         });
     }
 
@@ -38,7 +41,9 @@ return new class extends Migration
             $table->dropIndex(['jenis_dokumen_id']);
             $table->dropIndex(['created_at']);
             $table->dropIndex(['tanggal_masuk']);
-            $table->dropFullText(['judul_dokumen']);
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->dropFullText(['judul_dokumen']);
+            }
         });
     }
 };

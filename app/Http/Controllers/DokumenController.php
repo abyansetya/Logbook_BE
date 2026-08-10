@@ -23,6 +23,13 @@ class DokumenController extends Controller
      * @param Request $request Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
      * @return JsonResponse Paginated list of documents.
      */
+    #[\Dedoc\Scramble\Attributes\QueryParameter('q', 'Pencarian berdasarkan judul dokumen atau nomor dokumen', type: 'string', example: 'Kerjasama')]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('status', 'Filter berdasarkan ID status dokumen', type: 'integer', example: 5)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('jenis_dokumen', 'Filter berdasarkan ID jenis dokumen (1=MoU, 2=MoA, 3=IA)', type: 'integer', example: 1)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('tahun', 'Filter berdasarkan tahun tanggal dokumen', type: 'integer', example: 2026)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('order', 'Urutan sorting asc/desc', type: 'string', example: 'desc')]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('page', 'Nomor halaman', type: 'integer', example: 1)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('per_page', 'Jumlah data per halaman (maks 100)', type: 'integer', example: 10)]
     public function getDokumen(Request $request): JsonResponse
     {
         try {

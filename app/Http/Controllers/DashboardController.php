@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Models\Mitra;
 use App\Models\Dokumen;
 use App\Models\Log;
+use App\Models\Mitra;
 use App\Models\Status;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -14,12 +13,12 @@ use Illuminate\Support\Facades\DB;
 /**
  * Provides aggregated statistical data and chart information for the application dashboard.
  */
-class DashboardController 
+class DashboardController
 {
     /**
      * Retrieve global statistics, status distribution, and document trends for the dashboard.
      *
-     * @param \Illuminate\Http\Request $request Includes filter parameters like 'tahun' and 'status'.
+     * @param  \Illuminate\Http\Request  $request  Includes filter parameters like 'tahun' and 'status'.
      * @return JsonResponse Structured dashboard stats including totals, chart data, and status counts.
      */
     #[\Dedoc\Scramble\Attributes\QueryParameter('tahun', 'Filter statistik berdasarkan tahun', type: 'integer', example: 2026)]
@@ -29,15 +28,15 @@ class DashboardController
         try {
             // 1. Ambil SEMUA master status yang ada di database
             $allStatuses = Status::all();
-            
+
             // Filter tahun
             $tahun = $request->query('tahun');
-            
+
             $docQuery = Dokumen::query();
             if ($tahun && $tahun !== 'all') {
                 $docQuery->whereYear('tanggal_dokumen', $tahun);
             }
-            
+
             $totalDocs = (clone $docQuery)->count();
 
             // 2. Distribusi Status (Samping)
@@ -48,9 +47,9 @@ class DashboardController
                 ->map(function ($item) use ($totalDocs) {
                     return [
                         'status_id' => $item->status_id,
-                        'status' => $item->status->nama ?? 'Unknown', 
+                        'status' => $item->status->nama ?? 'Unknown',
                         'count' => $item->count,
-                        'percentage' => $totalDocs > 0 ? round(($item->count / $totalDocs) * 100) : 0
+                        'percentage' => $totalDocs > 0 ? round(($item->count / $totalDocs) * 100) : 0,
                     ];
                 });
 
@@ -90,7 +89,7 @@ class DashboardController
                     ->pluck('total', 'jenis_dokumen_id');
 
                 $chartData[] = [
-                    'year' => (string)$year,
+                    'year' => (string) $year,
                     'MoU' => $countsByType[1] ?? 0,
                     'MoA' => $countsByType[2] ?? 0,
                     'IA' => $countsByType[3] ?? 0,
@@ -120,8 +119,8 @@ class DashboardController
                         'mitra_bulan_ini' => Mitra::whereMonth('created_at', Carbon::now()->month)->count(),
                         'dokumen_minggu_ini' => Dokumen::whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
                         'log_hari_ini' => Log::whereDate('created_at', Carbon::today())->count(),
-                    ]
-                ]
+                    ],
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);

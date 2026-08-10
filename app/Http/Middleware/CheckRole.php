@@ -15,7 +15,7 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -27,7 +27,7 @@ class CheckRole
 
         return response()->json([
             'success' => false,
-            'message' => 'Forbidden: You do not have the required role to perform this action.'
+            'message' => 'Forbidden: You do not have the required role to perform this action.',
         ], 403);
     }
 }

@@ -8,8 +8,8 @@ use App\Models\Mitra;
 use App\Models\Status;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use Tests\Feature\Concerns\TestHelpers;
+use Tests\TestCase;
 
 class DokumenTest extends TestCase
 {
@@ -18,23 +18,23 @@ class DokumenTest extends TestCase
 
     public function test_list_dokumen_returns_paginated_data(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createViewer();
         Sanctum::actingAs($user);
 
         Dokumen::factory()->count(3)->create();
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/logbook');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
     }
 
     public function test_create_dokumen_success(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
@@ -42,7 +42,7 @@ class DokumenTest extends TestCase
         $jenis = JenisDokumen::factory()->mou()->create();
         $status = Status::factory()->proses()->create();
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/logbook/dokumen', [
             'mitra_id' => $mitra->id,
             'jenis_dokumen_id' => $jenis->id,
@@ -51,7 +51,7 @@ class DokumenTest extends TestCase
             'nomor_dokumen_undip' => 'UNDIP-2026-001',
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(201)
             ->assertJsonPath('data.judul_dokumen', 'Kerja sama penelitian');
 
@@ -60,46 +60,46 @@ class DokumenTest extends TestCase
 
     public function test_create_dokumen_validation_error(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/logbook/dokumen', [
             'judul_dokumen' => '',
             'mitra_id' => 999,
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['judul_dokumen', 'mitra_id']);
     }
 
     public function test_show_dokumen_returns_detail(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createViewer();
         Sanctum::actingAs($user);
 
         $dokumen = Dokumen::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->getJson("/api/v1/logbook/dokumen/{$dokumen->id}");
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.judul_dokumen', $dokumen->judul_dokumen);
     }
 
     public function test_update_dokumen_success(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
         $dokumen = Dokumen::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->putJson("/api/v1/logbook/edit-dokumen/{$dokumen->id}", [
             'mitra_id' => $dokumen->mitra_id,
             'jenis_dokumen_id' => $dokumen->jenis_dokumen_id,
@@ -107,20 +107,20 @@ class DokumenTest extends TestCase
             'judul_dokumen' => 'Judul diperbarui',
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.judul_dokumen', 'Judul diperbarui');
     }
 
     public function test_operator_cannot_edit_terbit_dokumen(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createOperator();
         Sanctum::actingAs($user);
 
         $dokumen = Dokumen::factory()->terbit()->create();
 
-        //ACT
+        // ACT
         $response = $this->putJson("/api/v1/logbook/edit-dokumen/{$dokumen->id}", [
             'mitra_id' => $dokumen->mitra_id,
             'jenis_dokumen_id' => $dokumen->jenis_dokumen_id,
@@ -128,38 +128,38 @@ class DokumenTest extends TestCase
             'judul_dokumen' => 'Coba edit dokumen terbit',
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(403);
     }
 
     public function test_delete_dokumen_success(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
         $dokumen = Dokumen::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->deleteJson("/api/v1/logbook/delete-dokumen/{$dokumen->id}");
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200);
         $this->assertDatabaseMissing('dokumen', ['id' => $dokumen->id]);
     }
 
     public function test_export_dokumen_returns_xlsx(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createViewer();
         Sanctum::actingAs($user);
 
         Dokumen::factory()->count(2)->create();
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/logbook/export');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     }

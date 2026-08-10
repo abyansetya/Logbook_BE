@@ -31,7 +31,7 @@ class ChangePasswordRequest extends FormRequest
             $user = $this->user();
 
             //  password lama salah
-            if (!Hash::check($this->current_password, $user->password)) {
+            if (! Hash::check($this->current_password, $user->password)) {
                 $validator->errors()->add(
                     'current_password',
                     'Password saat ini salah'

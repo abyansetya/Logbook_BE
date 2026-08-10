@@ -4,7 +4,6 @@ namespace Tests\Feature\Concerns;
 
 use App\Models\Role;
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
 
 trait TestHelpers
 {

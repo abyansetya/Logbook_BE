@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Unit;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,7 +15,7 @@ class UnitController extends Controller
     /**
      * List all organizational units with search and pagination.
      *
-     * @param Request $request Filter parameters (q, per_page).
+     * @param  Request  $request  Filter parameters (q, per_page).
      * @return JsonResponse Paginated list of units.
      */
     public function getUnit(Request $request): JsonResponse
@@ -29,13 +29,13 @@ class UnitController extends Controller
                 $query->where('nama', 'LIKE', "%{$search}%");
             }
 
-            $perPage = min((int)$request->input('per_page', 10), 100);
+            $perPage = min((int) $request->input('per_page', 10), 100);
             $units = $query->orderBy('nama', 'asc')->paginate($perPage);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar unit berhasil diambil',
-                'data'    => [
+                'data' => [
                     'data' => $units->items(),
                     'meta' => [
                         'current_page' => $units->currentPage(),
@@ -44,13 +44,13 @@ class UnitController extends Controller
                         'per_page' => $units->perPage(),
                         'to' => $units->lastItem(),
                         'total' => $units->total(),
-                    ]
-                ]
+                    ],
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -58,7 +58,7 @@ class UnitController extends Controller
     /**
      * Create a new organizational unit.
      *
-     * @param Request $request Unit details (nama).
+     * @param  Request  $request  Unit details (nama).
      * @return JsonResponse Created unit data.
      */
     public function addUnit(Request $request): JsonResponse
@@ -76,22 +76,24 @@ class UnitController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Unit berhasil ditambahkan',
-                'data'    => $unit
+                'data' => $unit,
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan unit',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -99,8 +101,8 @@ class UnitController extends Controller
     /**
      * Update an existing organizational unit.
      *
-     * @param Request $request Updated unit details.
-     * @param int|string $id Unit ID.
+     * @param  Request  $request  Updated unit details.
+     * @param  int|string  $id  Unit ID.
      * @return JsonResponse Updated unit data.
      */
     public function updateUnit(Request $request, $id): JsonResponse
@@ -108,9 +110,9 @@ class UnitController extends Controller
         DB::beginTransaction();
         try {
             $unit = Unit::findOrFail($id);
-            
+
             $validated = $request->validate([
-                'nama' => 'required|string|max:255|unique:unit,nama,' . $id,
+                'nama' => 'required|string|max:255|unique:unit,nama,'.$id,
             ]);
 
             $unit->update($validated);
@@ -120,22 +122,24 @@ class UnitController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Unit berhasil diperbarui',
-                'data'    => $unit
+                'data' => $unit,
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui unit',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -143,7 +147,7 @@ class UnitController extends Controller
     /**
      * Remove an organizational unit from the system.
      *
-     * @param int|string $id Unit ID.
+     * @param  int|string  $id  Unit ID.
      * @return JsonResponse Success or failure message.
      */
     public function deleteUnit($id): JsonResponse
@@ -154,12 +158,12 @@ class UnitController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Unit berhasil dihapus'
+                'message' => 'Unit berhasil dihapus',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus unit'
+                'message' => 'Gagal menghapus unit',
             ], 500);
         }
     }

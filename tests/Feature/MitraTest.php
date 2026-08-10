@@ -6,8 +6,8 @@ use App\Models\KlasifikasiMitra;
 use App\Models\Mitra;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use Tests\Feature\Concerns\TestHelpers;
+use Tests\TestCase;
 
 class MitraTest extends TestCase
 {
@@ -16,80 +16,80 @@ class MitraTest extends TestCase
 
     public function test_list_mitra_returns_data(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createViewer();
         Sanctum::actingAs($user);
 
         Mitra::factory()->count(3)->create();
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/mitra');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
     }
 
     public function test_admin_add_mitra_is_approved(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
         $klasifikasi = KlasifikasiMitra::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/mitra', [
             'nama' => 'PT Maju Bersama',
             'klasifikasi_mitra_id' => $klasifikasi->id,
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'approved');
     }
 
     public function test_operator_add_mitra_is_pending(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createOperator();
         Sanctum::actingAs($user);
 
         $klasifikasi = KlasifikasiMitra::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/mitra', [
             'nama' => 'PT Maju Bersama',
             'klasifikasi_mitra_id' => $klasifikasi->id,
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(201)
             ->assertJsonPath('data.status', 'pending');
     }
 
     public function test_operator_update_mitra_reverts_to_pending(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createOperator();
         Sanctum::actingAs($user);
 
         $mitra = Mitra::factory()->create();
 
-        //ACT
+        // ACT
         $response = $this->putJson("/api/v1/mitra/{$mitra->id}", [
             'nama' => 'Nama Baru Mitra',
             'klasifikasi_mitra_id' => $mitra->klasifikasi_mitra_id,
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'pending');
     }
 
     public function test_approve_mitra_admin_only(): void
     {
-        //Admin sukses
+        // Admin sukses
         $admin = $this->createAdmin();
         Sanctum::actingAs($admin);
         $mitra = Mitra::factory()->pending()->create();
@@ -98,7 +98,7 @@ class MitraTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'approved');
 
-        //Operator ditolak
+        // Operator ditolak
         $operator = $this->createOperator();
         Sanctum::actingAs($operator);
         $mitra2 = Mitra::factory()->pending()->create();
@@ -109,7 +109,7 @@ class MitraTest extends TestCase
 
     public function test_delete_mitra_admin_only(): void
     {
-        //Admin sukses
+        // Admin sukses
         $admin = $this->createAdmin();
         Sanctum::actingAs($admin);
         $mitra = Mitra::factory()->create();
@@ -118,7 +118,7 @@ class MitraTest extends TestCase
         $response->assertStatus(200);
         $this->assertDatabaseMissing('mitra', ['id' => $mitra->id]);
 
-        //Operator ditolak
+        // Operator ditolak
         $operator = $this->createOperator();
         Sanctum::actingAs($operator);
         $mitra2 = Mitra::factory()->create();

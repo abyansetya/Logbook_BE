@@ -6,8 +6,8 @@ use App\Models\Dokumen;
 use App\Models\Mitra;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use Tests\Feature\Concerns\TestHelpers;
+use Tests\TestCase;
 
 class DashboardTest extends TestCase
 {
@@ -16,7 +16,7 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_returns_correct_totals(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createViewer();
         Sanctum::actingAs($user);
 
@@ -26,10 +26,10 @@ class DashboardTest extends TestCase
             'mitra_id' => $mitras->first()->id,
         ]);
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/dashboard');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.totals.mitra', 3)
             ->assertJsonPath('data.totals.dokumen', 5)
@@ -38,17 +38,17 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_has_complete_structure(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
         Mitra::factory()->count(2)->create();
         Dokumen::factory()->count(2)->create();
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/dashboard');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -64,17 +64,17 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_filter_by_year(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
         Dokumen::factory()->create(['tanggal_dokumen' => '2026-05-10']);
         Dokumen::factory()->create(['tanggal_dokumen' => '2025-05-10']);
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/dashboard?tahun=2026');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.totals.dokumen', 1);
     }

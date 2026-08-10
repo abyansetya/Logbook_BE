@@ -34,7 +34,15 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: "highest"
+
+      - name: Code style check (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Security audit
+        run: composer audit || true
 
       - name: Copy environment file
         run: cp .env.example .env

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::create('activity_logs', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->string('action');
-        $table->text('description')->nullable();
-        $table->string('type'); // logbook, document, dll
-        $table->timestamps();
-    });
+        Schema::create('activity_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('action');
+            $table->text('description')->nullable();
+            $table->string('type'); // logbook, document, dll
+            $table->timestamps();
+        });
     }
 
     /**

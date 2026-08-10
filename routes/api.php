@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\HelperController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\HelperController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,7 +78,7 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::prefix('helper')->middleware('auth:sanctum')->group(function() {
+    Route::prefix('helper')->middleware('auth:sanctum')->group(function () {
         Route::get('/getStatus', [HelperController::class, 'getStatus'])->name('helper.getStatus');
         Route::get('/getKlasifikasi', [HelperController::class, 'getKlasifikasi'])->name('helper.getKlasifikasi');
         Route::get('/getUnit', [HelperController::class, 'getUnit'])->name('helper.getUnit');
@@ -87,7 +87,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('role:Admin,Operator')->group(function () {
             Route::post('/save-activities', [HelperController::class, 'saveActivity'])->name('helper.save-activity');
         });
-    }); 
+    });
 
     Route::prefix('mitra')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [MitraController::class, 'getMitra'])->name('mitra.index');

@@ -6,8 +6,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use Tests\Feature\Concerns\TestHelpers;
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
@@ -61,79 +61,79 @@ class AuthTest extends TestCase
 
     public function test_login_wrong_password_returns_401(): void
     {
-        //ARRANGE
+        // ARRANGE
         User::factory()->create([
             'email' => 'budi@example.com',
             'password' => 'Password123!',
         ]);
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'budi@example.com',
-            'password' => 'wrongPassword123'
+            'password' => 'wrongPassword123',
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(401)
             ->assertJsonMissing(['token']);
     }
 
     public function test_login_pending_account_returns_403(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createPendingUser();
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
-            'password' => 'password', //default factory password
+            'password' => 'password', // default factory password
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(403)
             ->assertJsonPath('message', 'Akun Anda masih menunggu persetujuan admin');
     }
 
     public function test_login_rejected_account_returns_403(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = User::factory()->rejected()->create();
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
-            'password' => 'password', //default factory password
+            'password' => 'password', // default factory password
         ]);
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(403)
             ->assertJsonPath('message', 'Registrasi akun Anda ditolak admin');
     }
 
     public function test_logout_revokes_token(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = User::factory()->create();
         Sanctum::actingAs($user);
 
-        //ACT
+        // ACT
         $response = $this->postJson('/api/v1/auth/logout');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200);
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function test_get_me_returns_user_with_roles(): void
     {
-        //ARRANGE
+        // ARRANGE
         $user = $this->createAdmin();
         Sanctum::actingAs($user);
 
-        //ACT
+        // ACT
         $response = $this->getJson('/api/v1/auth/me');
 
-        //ASSERT
+        // ASSERT
         $response->assertStatus(200)
             ->assertJsonPath('data.user.email', $user->email)
             ->assertJsonPath('data.user.roles', ['Admin']);

@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\addLogRequest;
 use App\Http\Requests\updateLogRequest;
 use App\Models\Dokumen;
 use App\Models\Log;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +18,7 @@ class LogbookController extends Controller
     /**
      * Add a new activity log entry to a document.
      *
-     * @param addLogRequest $request Validated log data.
+     * @param  addLogRequest  $request  Validated log data.
      * @return JsonResponse Created log entry.
      */
     public function addLog(addLogRequest $request): JsonResponse
@@ -33,16 +31,16 @@ class LogbookController extends Controller
             if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tidak dapat menambah log pada dokumen yang sudah terbit'
+                    'message' => 'Tidak dapat menambah log pada dokumen yang sudah terbit',
                 ], 422);
             }
 
             $log = Log::create([
-                'user_id'     => $request->user()->id,
-                'mitra_id'    => $validated['mitra_id'],
-                'dokumen_id'  => $validated['dokumen_id'],
-                'unit_id'     => $validated['unit_id'],
-                'keterangan'  => $validated['keterangan'],
+                'user_id' => $request->user()->id,
+                'mitra_id' => $validated['mitra_id'],
+                'dokumen_id' => $validated['dokumen_id'],
+                'unit_id' => $validated['unit_id'],
+                'keterangan' => $validated['keterangan'],
                 'tanggal_log' => $validated['tanggal_log'],
             ]);
 
@@ -51,15 +49,16 @@ class LogbookController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Log aktivitas berhasil ditambahkan',
-                'data'    => $log
+                'data' => $log,
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan log',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -67,8 +66,8 @@ class LogbookController extends Controller
     /**
      * Update an existing activity log entry.
      *
-     * @param updateLogRequest $request Validated updated log data.
-     * @param int|string $id The log ID.
+     * @param  updateLogRequest  $request  Validated updated log data.
+     * @param  int|string  $id  The log ID.
      * @return JsonResponse Updated log entry.
      */
     public function updateLog(updateLogRequest $request, $id): JsonResponse
@@ -78,11 +77,11 @@ class LogbookController extends Controller
             $log = Log::findOrFail($id);
 
             $log->update([
-                'keterangan'  => $request->keterangan,
+                'keterangan' => $request->keterangan,
                 'tanggal_log' => $request->tanggal_log ?? now(),
-                'user_id'     => Auth::id(),
-                'unit_id'     => $request->unit_id,
-                'updated_at'  => now('Asia/Jakarta'),
+                'user_id' => Auth::id(),
+                'unit_id' => $request->unit_id,
+                'updated_at' => now('Asia/Jakarta'),
             ]);
 
             DB::commit();
@@ -90,14 +89,15 @@ class LogbookController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Log aktivitas berhasil diperbarui',
-                'data'    => $log
+                'data' => $log,
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui log: ' . (config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem')
+                'message' => 'Gagal memperbarui log: '.(config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'),
             ], 500);
         }
     }
@@ -105,7 +105,7 @@ class LogbookController extends Controller
     /**
      * Delete an activity log entry.
      *
-     * @param int|string $id The log ID.
+     * @param  int|string  $id  The log ID.
      * @return JsonResponse Success or failure message.
      */
     public function deleteLog($id): JsonResponse
@@ -116,13 +116,13 @@ class LogbookController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Log berhasil dihapus'
+                'message' => 'Log berhasil dihapus',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus log'
+                'message' => 'Gagal menghapus log',
             ], 500);
         }
     }

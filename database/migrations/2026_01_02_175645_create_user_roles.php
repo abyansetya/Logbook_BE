@@ -12,28 +12,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_roles', function (Blueprint $table) {
-                    $table->id();
+            $table->id();
 
-                    $table->unsignedBigInteger('user_id');
-                    $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('role_id');
 
-                    // optional tapi sangat disarankan
-                    $table->timestamps();
+            // optional tapi sangat disarankan
+            $table->timestamps();
 
-                    // foreign key
-                    $table->foreign('user_id')
-                        ->references('id')
-                        ->on('users')
-                        ->cascadeOnDelete();
+            // foreign key
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete();
 
-                    $table->foreign('role_id')
-                        ->references('id')
-                        ->on('roles')
-                        ->cascadeOnDelete();
+            $table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->cascadeOnDelete();
 
-                    // mencegah duplikasi role
-                    $table->unique(['user_id', 'role_id']);
-                });
+            // mencegah duplikasi role
+            $table->unique(['user_id', 'role_id']);
+        });
     }
 
     /**

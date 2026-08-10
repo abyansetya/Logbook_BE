@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -19,8 +17,9 @@ class RegisterController extends Controller
     /**
      * Register a new user in the system.
      *
-     * @param RegisterRequest $request Validated registration data.
+     * @param  RegisterRequest  $request  Validated registration data.
      * @return JsonResponse Response containing the new pending user data.
+     *
      * @throws \RuntimeException If the default viewer role is missing.
      */
     public function submitRegister(RegisterRequest $request): JsonResponse
@@ -42,7 +41,7 @@ class RegisterController extends Controller
             // Attach default role: viewer
             $viewerRole = Role::where('nama', 'Viewer')->first();
 
-            if (!$viewerRole) {
+            if (! $viewerRole) {
                 throw new \RuntimeException('Default role "Viewer" not found in database');
             }
 
@@ -85,7 +84,7 @@ class RegisterController extends Controller
     /**
      * Format the user object for a consistent API response.
      *
-     * @param User $user The user model to format.
+     * @param  User  $user  The user model to format.
      * @return array Formatted user data.
      */
     private function formatUserResponse(User $user): array

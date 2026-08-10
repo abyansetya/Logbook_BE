@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\addDokumenRequest;
 use App\Http\Requests\editDokumenRequest;
 use App\Http\Resources\DokumenResource;
@@ -20,7 +19,7 @@ class DokumenController extends Controller
     /**
      * List documents with filtering and search capabilities.
      *
-     * @param Request $request Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
+     * @param  Request  $request  Filter parameters (q, status, jenis_dokumen, tahun, per_page, order).
      * @return JsonResponse Paginated list of documents.
      */
     #[\Dedoc\Scramble\Attributes\QueryParameter('q', 'Pencarian berdasarkan judul dokumen atau nomor dokumen', type: 'string', example: 'Kerjasama')]
@@ -36,7 +35,7 @@ class DokumenController extends Controller
             $query = Dokumen::with([
                 'mitra',
                 'jenisDokumen',
-                'status'
+                'status',
             ]);
 
             $this->applyDokumenFilters($query, $request);
@@ -51,13 +50,13 @@ class DokumenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar dokumen berhasil diambil',
-                'data'    => DokumenResource::collection($dokumen)->response()->getData(true)
+                'data' => DokumenResource::collection($dokumen)->response()->getData(true),
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -65,23 +64,23 @@ class DokumenController extends Controller
     /**
      * Show detailed information for a single document, including its activity logs.
      *
-     * @param int|string $id The document ID.
+     * @param  int|string  $id  The document ID.
      * @return JsonResponse Document details with related logs and users.
      */
     public function getLogbyId($id): JsonResponse
     {
         try {
             $dokumen = Dokumen::with([
-                'logs' => fn($q) => $q->orderBy('tanggal_log', 'asc'),
+                'logs' => fn ($q) => $q->orderBy('tanggal_log', 'asc'),
                 'logs.user',
                 'jenisDokumen',
-                'status'
+                'status',
             ])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Log aktivitas berhasil dimuat',
-                'data'    => new DokumenResource($dokumen)
+                'data' => new DokumenResource($dokumen),
             ], 200);
 
         } catch (\Exception $e) {
@@ -92,7 +91,7 @@ class DokumenController extends Controller
     /**
      * Create a new document entry with optional draft file upload.
      *
-     * @param addDokumenRequest $request Validated document data.
+     * @param  addDokumenRequest  $request  Validated document data.
      * @return JsonResponse Created document resource.
      */
     public function addDokumen(addDokumenRequest $request): JsonResponse
@@ -102,16 +101,16 @@ class DokumenController extends Controller
             $validated = $request->validated();
 
             $dokumen = Dokumen::create([
-                'mitra_id'            => $validated['mitra_id'],
-                'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
-                'status_id'           => $validated['status_id'],
-                'judul_dokumen'       => $validated['judul_dokumen'],
-                'contact_person'      => $validated['contact_person'] ?? null,
+                'mitra_id' => $validated['mitra_id'],
+                'jenis_dokumen_id' => $validated['jenis_dokumen_id'],
+                'status_id' => $validated['status_id'],
+                'judul_dokumen' => $validated['judul_dokumen'],
+                'contact_person' => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
-                'tanggal_dokumen'     => $validated['tanggal_dokumen'] ?? null,
-                'tanggal_masuk'       => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
-                'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
+                'tanggal_dokumen' => $validated['tanggal_dokumen'] ?? null,
+                'tanggal_masuk' => $validated['tanggal_masuk'] ?? now()->format('Y-m-d'),
+                'tanggal_terbit' => $validated['tanggal_terbit'] ?? null,
             ]);
 
             if ($request->hasFile('draft_dokumen')) {
@@ -127,15 +126,16 @@ class DokumenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Dokumen berhasil ditambahkan',
-                'data'    => new DokumenResource($dokumen)
+                'data' => new DokumenResource($dokumen),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan dokumen',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -143,8 +143,8 @@ class DokumenController extends Controller
     /**
      * Update document details and/or upload draft/final files.
      *
-     * @param editDokumenRequest $request Validated document data.
-     * @param int|string $id The document ID.
+     * @param  editDokumenRequest  $request  Validated document data.
+     * @param  int|string  $id  The document ID.
      * @return JsonResponse Updated document resource.
      */
     public function updateDokumen(editDokumenRequest $request, $id): JsonResponse
@@ -152,10 +152,10 @@ class DokumenController extends Controller
         $dokumen = Dokumen::with('status')->findOrFail($id);
 
         if ($dokumen->status && $dokumen->status->nama === 'Terbit') {
-            if (!$request->user()->hasRole('Admin')) {
+            if (! $request->user()->hasRole('Admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit'
+                    'message' => 'Hanya Admin yang dapat mengedit dokumen yang sudah berstatus Terbit',
                 ], 403);
             }
         }
@@ -165,16 +165,16 @@ class DokumenController extends Controller
             $validated = $request->validated();
 
             $dokumen->update([
-                'mitra_id'            => $validated['mitra_id'],
-                'jenis_dokumen_id'    => $validated['jenis_dokumen_id'],
-                'status_id'           => $validated['status_id'],
-                'judul_dokumen'       => $validated['judul_dokumen'],
-                'contact_person'      => $validated['contact_person'] ?? null,
+                'mitra_id' => $validated['mitra_id'],
+                'jenis_dokumen_id' => $validated['jenis_dokumen_id'],
+                'status_id' => $validated['status_id'],
+                'judul_dokumen' => $validated['judul_dokumen'],
+                'contact_person' => $validated['contact_person'] ?? null,
                 'nomor_dokumen_mitra' => $validated['nomor_dokumen_mitra'] ?? null,
                 'nomor_dokumen_undip' => $validated['nomor_dokumen_undip'] ?? null,
-                'tanggal_dokumen'     => $validated['tanggal_dokumen'] ?? null,
-                'tanggal_masuk'       => $validated['tanggal_masuk'] ?? $dokumen->tanggal_masuk,
-                'tanggal_terbit'      => $validated['tanggal_terbit'] ?? null,
+                'tanggal_dokumen' => $validated['tanggal_dokumen'] ?? null,
+                'tanggal_masuk' => $validated['tanggal_masuk'] ?? $dokumen->tanggal_masuk,
+                'tanggal_terbit' => $validated['tanggal_terbit'] ?? null,
             ]);
 
             if ($request->hasFile('draft_dokumen')) {
@@ -212,15 +212,16 @@ class DokumenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Dokumen berhasil diperbarui',
-                'data'    => new DokumenResource($dokumen)
+                'data' => new DokumenResource($dokumen),
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui dokumen',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -228,7 +229,7 @@ class DokumenController extends Controller
     /**
      * Permanently delete a document and its associated records.
      *
-     * @param int|string $id The document ID.
+     * @param  int|string  $id  The document ID.
      * @return JsonResponse Success or failure message.
      */
     public function deleteDokumen($id): JsonResponse
@@ -239,13 +240,13 @@ class DokumenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Dokumen berhasil dihapus'
+                'message' => 'Dokumen berhasil dihapus',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus dokumen'
+                'message' => 'Gagal menghapus dokumen',
             ], 500);
         }
     }
@@ -253,7 +254,7 @@ class DokumenController extends Controller
     /**
      * Search for documents by title for autocomplete or quick navigation.
      *
-     * @param Request $request Search query 'q'.
+     * @param  Request  $request  Search query 'q'.
      * @return JsonResponse List of matching document resources.
      */
     public function searchDokumen(Request $request): JsonResponse
@@ -271,14 +272,14 @@ class DokumenController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => DokumenResource::collection($dokumens)
+                'data' => DokumenResource::collection($dokumens),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan pada server',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -286,7 +287,7 @@ class DokumenController extends Controller
     /**
      * Export the filtered dokumen data to an Excel spreadsheet.
      *
-     * @param Request $request Filter parameters (same as index).
+     * @param  Request  $request  Filter parameters (same as index).
      * @return \Symfony\Component\HttpFoundation\StreamedResponse Streamed Excel file download.
      */
     public function exportDokumen(Request $request)
@@ -302,25 +303,25 @@ class DokumenController extends Controller
 
             $dokumens = $query->orderBy('tanggal_masuk', $order)->get();
 
-            $groupedData = $dokumens->groupBy(fn($item) => $item->mitra ? $item->mitra->nama : 'Tanpa Mitra');
+            $groupedData = $dokumens->groupBy(fn ($item) => $item->mitra ? $item->mitra->nama : 'Tanpa Mitra');
 
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet;
             $sheet = $spreadsheet->getActiveSheet();
 
-            $headers       = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal Dokumen', 'Tanggal Masuk', 'Tanggal Terbit', 'Tanggal Log', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
+            $headers = ['No', 'Nama Mitra', 'Judul Dokumen', 'Tanggal Dokumen', 'Tanggal Masuk', 'Tanggal Terbit', 'Tanggal Log', 'Keterangan', 'Contact Person', 'Nomor Dokumen', 'Nomor Mitra', 'Status', 'Kriteria Mitra'];
             $columnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
 
             foreach ($headers as $index => $header) {
-                $sheet->setCellValue($columnLetters[$index] . '1', $header);
-                $sheet->getStyle($columnLetters[$index] . '1')->getFont()->setBold(true);
-                $sheet->getStyle($columnLetters[$index] . '1')->getFill()
-                      ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                      ->getStartColor()->setARGB('FFFF00');
+                $sheet->setCellValue($columnLetters[$index].'1', $header);
+                $sheet->getStyle($columnLetters[$index].'1')->getFont()->setBold(true);
+                $sheet->getStyle($columnLetters[$index].'1')->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FFFF00');
                 $sheet->getColumnDimension($columnLetters[$index])->setAutoSize(true);
             }
 
             $row = 2;
-            $no  = 1;
+            $no = 1;
 
             foreach ($groupedData as $mitraName => $docs) {
                 $docs = ($order === 'desc')
@@ -337,9 +338,9 @@ class DokumenController extends Controller
 
                     if ($logs->count() > 0) {
                         foreach ($logs as $log) {
-                            $sheet->setCellValue('G' . $row, $log->tanggal_log);
-                            $sheet->setCellValue('H' . $row, $log->keterangan);
-                            $sheet->setCellValue('I' . $row, $dokumen->contact_person ?? '-');
+                            $sheet->setCellValue('G'.$row, $log->tanggal_log);
+                            $sheet->setCellValue('H'.$row, $log->keterangan);
+                            $sheet->setCellValue('I'.$row, $dokumen->contact_person ?? '-');
                             $row++;
                         }
                     } else {
@@ -358,15 +359,15 @@ class DokumenController extends Controller
                         $sheet->mergeCells("L{$dokumenStartRow}:L{$dokumenEndRow}");
                     }
 
-                    $sheet->setCellValue('C' . $dokumenStartRow, $dokumen->judul_dokumen);
-                    $sheet->setCellValue('D' . $dokumenStartRow, $dokumen->tanggal_dokumen ?? '-');
-                    $sheet->setCellValue('E' . $dokumenStartRow, $dokumen->tanggal_masuk ?? '-');
-                    $sheet->setCellValue('F' . $dokumenStartRow, $dokumen->tanggal_terbit ?? '-');
-                    $sheet->setCellValue('J' . $dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
-                    $sheet->setCellValue('K' . $dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
-                    $sheet->getStyle('J' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-                    $sheet->getStyle('K' . $dokumenStartRow)->getAlignment()->setWrapText(true);
-                    $sheet->setCellValue('L' . $dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
+                    $sheet->setCellValue('C'.$dokumenStartRow, $dokumen->judul_dokumen);
+                    $sheet->setCellValue('D'.$dokumenStartRow, $dokumen->tanggal_dokumen ?? '-');
+                    $sheet->setCellValue('E'.$dokumenStartRow, $dokumen->tanggal_masuk ?? '-');
+                    $sheet->setCellValue('F'.$dokumenStartRow, $dokumen->tanggal_terbit ?? '-');
+                    $sheet->setCellValue('J'.$dokumenStartRow, $dokumen->nomor_dokumen_undip ?? '-');
+                    $sheet->setCellValue('K'.$dokumenStartRow, $dokumen->nomor_dokumen_mitra ?? '-');
+                    $sheet->getStyle('J'.$dokumenStartRow)->getAlignment()->setWrapText(true);
+                    $sheet->getStyle('K'.$dokumenStartRow)->getAlignment()->setWrapText(true);
+                    $sheet->setCellValue('L'.$dokumenStartRow, $dokumen->status ? $dokumen->status->nama : '-');
                 }
 
                 $mitraEndRow = $row - 1;
@@ -377,17 +378,17 @@ class DokumenController extends Controller
                     $sheet->mergeCells("M{$mitraStartRow}:M{$mitraEndRow}");
                 }
 
-                $sheet->setCellValue('A' . $mitraStartRow, $no++);
-                $sheet->setCellValue('B' . $mitraStartRow, $mitraName);
+                $sheet->setCellValue('A'.$mitraStartRow, $no++);
+                $sheet->setCellValue('B'.$mitraStartRow, $mitraName);
 
                 $kriteria = '';
                 if ($docs->first()->mitra && $docs->first()->mitra->klasifikasiMitra) {
                     $kriteria = $docs->first()->mitra->klasifikasiMitra->nama;
                 }
-                $sheet->setCellValue('M' . $mitraStartRow, $kriteria);
+                $sheet->setCellValue('M'.$mitraStartRow, $kriteria);
             }
 
-            $sheet->getStyle('A1:M' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A1:M'.($row - 1))->applyFromArray([
                 'borders' => [
                     'allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
                 ],
@@ -400,7 +401,7 @@ class DokumenController extends Controller
 
             return response()->streamDownload(function () use ($writer) {
                 $writer->save('php://output');
-            }, 'Logbook_' . date('Y-m-d_H-i-s') . '.xlsx', [
+            }, 'Logbook_'.date('Y-m-d_H-i-s').'.xlsx', [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ]);
 
@@ -408,7 +409,7 @@ class DokumenController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal export data',
-                'error'   => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem'
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan sistem',
             ], 500);
         }
     }
@@ -419,8 +420,8 @@ class DokumenController extends Controller
             $search = $request->query('q');
             $query->where(function ($q) use ($search) {
                 $q->where('judul_dokumen', 'LIKE', "%{$search}%")
-                  ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
-                  ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
+                    ->orWhere('nomor_dokumen_undip', 'LIKE', "%{$search}%")
+                    ->orWhere('nomor_dokumen_mitra', 'LIKE', "%{$search}%");
             });
         }
 

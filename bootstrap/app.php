@@ -4,9 +4,9 @@
  * =============================================================================
  * RATE LIMITING CONFIGURATION
  * =============================================================================
- * 
+ *
  * Tambahkan kode berikut ke bootstrap/app.php atau App\Providers\AppServiceProvider
- * 
+ *
  * Untuk Laravel 11+, tambahkan di bootstrap/app.php:
  */
 
@@ -16,8 +16,8 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 // Tambahkan dalam boot method atau di bootstrap/app.php
 
@@ -32,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
-        
+
         // Log every request
         $middleware->append(\App\Http\Middleware\LogRequestMiddleware::class);
     })
@@ -43,7 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Rate limiter untuk auth endpoints (login/register)
         RateLimiter::for('auth', function (Request $request) {
             return Limit::perMinute(5)->by(
-                $request->input('email') . '|' . $request->ip()
+                $request->input('email').'|'.$request->ip()
             )->response(function () {
                 return response()->json([
                     'message' => 'Terlalu banyak percobaan. Silakan coba lagi dalam 1 menit.',

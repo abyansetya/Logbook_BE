@@ -11,7 +11,7 @@ class updateLogRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -20,9 +20,9 @@ class updateLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'unit_id'        => 'nullable|exists:unit,id',
-            'keterangan'     => 'required|string|min:5',
-            'tanggal_log'    => 'required|date',
+            'unit_id' => 'nullable|exists:unit,id',
+            'keterangan' => 'required|string|min:5',
+            'tanggal_log' => 'required|date',
         ];
     }
 
@@ -32,11 +32,11 @@ class updateLogRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'keterangan.required'     => 'Kolom keterangan wajib diisi.',
-            'keterangan.min'          => 'Keterangan terlalu singkat, minimal 5 karakter.',
-            'tanggal_log.required'    => 'Tanggal log wajib diisi.',
-            'tanggal_log.date'        => 'Format tanggal tidak valid.',
-            'unit_id.exists'          => 'Unit yang dipilih tidak valid.',
+            'keterangan.required' => 'Kolom keterangan wajib diisi.',
+            'keterangan.min' => 'Keterangan terlalu singkat, minimal 5 karakter.',
+            'tanggal_log.required' => 'Tanggal log wajib diisi.',
+            'tanggal_log.date' => 'Format tanggal tidak valid.',
+            'unit_id.exists' => 'Unit yang dipilih tidak valid.',
         ];
     }
 }

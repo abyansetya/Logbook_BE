@@ -22,6 +22,8 @@ class DashboardController
      * @param \Illuminate\Http\Request $request Includes filter parameters like 'tahun' and 'status'.
      * @return JsonResponse Structured dashboard stats including totals, chart data, and status counts.
      */
+    #[\Dedoc\Scramble\Attributes\QueryParameter('tahun', 'Filter statistik berdasarkan tahun', type: 'integer', example: 2026)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('status', 'Filter berdasarkan ID status (bisa comma-separated, contoh: 1,2)', type: 'string', example: '1,2')]
     public function getDashboardStats(\Illuminate\Http\Request $request): JsonResponse
     {
         try {

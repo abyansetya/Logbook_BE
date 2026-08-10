@@ -18,6 +18,10 @@ class MitraController extends Controller
      * @param Request $request Filter parameters (q, klasifikasi, status, per_page).
      * @return JsonResponse Paginated list of partners.
      */
+    #[\Dedoc\Scramble\Attributes\QueryParameter('q', 'Pencarian berdasarkan nama, alamat, atau contact person mitra', type: 'string', example: 'Bank')]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('klasifikasi', 'Filter berdasarkan ID klasifikasi mitra', type: 'integer', example: 1)]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('status', 'Filter status mitra (approved/pending)', type: 'string', example: 'approved')]
+    #[\Dedoc\Scramble\Attributes\QueryParameter('per_page', 'Jumlah data per halaman (maks 100)', type: 'integer', example: 10)]
     public function getMitra(Request $request)
     {
         try {

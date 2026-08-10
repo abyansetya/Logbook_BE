@@ -29,6 +29,15 @@ class AuthController extends Controller
      * @param LoginRequest $request Validated login credentials.
      * @return JsonResponse Response containing user data and authentication token or error message.
      */
+    #[\Dedoc\Scramble\Attributes\Response(
+        status: 200,
+        description: 'Login berhasil, mengembalikan user dan token Bearer.',
+        examples: [
+            new \Dedoc\Scramble\Attributes\Example(
+                value: '{"message":"Login berhasil","data":{"user":{"id":1,"nama":"Admin User","email":"admin@example.com","nim_nip":"24060123120001","account_status":"approved","roles":["Admin"]},"token":"1|xxxxxxxxxxxx","token_type":"Bearer","expires_in":86400}}'
+            ),
+        ],
+    )]
     public function submitLogin(LoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
